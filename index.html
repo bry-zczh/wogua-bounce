@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>窝瓜弹弹乐</title>
+  <style>
+    :root {
+      --ink: #243322;
+      --paper: #fff8dc;
+      --accent: #f2c94c;
+      --danger: #d85745;
+      --panel: rgba(255, 248, 220, 0.88);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+      background: #182018;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 10px;
+    }
+
+    .game-shell {
+      position: relative;
+      width: min(480px, calc(100vw - 20px), calc((100vh - 20px) * 9 / 16));
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      background: #b6e7dc;
+      border: 4px solid #0d120c;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      background: #9fdad0;
+      cursor: grab;
+    }
+
+    canvas:active {
+      cursor: grabbing;
+    }
+
+    .hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .top-row,
+    .bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      min-width: 0;
+    }
+
+    .stat,
+    button {
+      min-height: 34px;
+      border: 3px solid #172015;
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: 0 4px 0 #172015;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .stat {
+      display: grid;
+      place-items: center;
+      padding: 0 9px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 7px;
+      pointer-events: auto;
+    }
+
+    button {
+      appearance: none;
+      border-radius: 0;
+      padding: 0 10px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #172015;
+    }
+
+    button:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .power {
+      width: 100%;
+      max-width: 220px;
+      align-self: center;
+      background: rgba(23, 32, 21, 0.72);
+      border: 3px solid #172015;
+      padding: 5px;
+      color: var(--paper);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .power-track {
+      height: 10px;
+      margin-top: 4px;
+      background: #42382c;
+      border: 2px solid #172015;
+    }
+
+    .power-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      background: rgba(18, 24, 16, 0.45);
+      pointer-events: auto;
+    }
+
+    .modal {
+      width: min(310px, 100%);
+      border: 4px solid #172015;
+      background: var(--paper);
+      color: var(--ink);
+      padding: 18px;
+      text-align: center;
+      box-shadow: 0 8px 0 #172015;
+    }
+
+    .modal h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .modal p {
+      margin: 0 0 16px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 360px) {
+      .hud {
+        padding: 8px;
+      }
+
+      .stat,
+      button {
+        min-height: 31px;
+        font-size: 12px;
+        padding-left: 7px;
+        padding-right: 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell" aria-label="窝瓜弹弹乐游戏区域">
+    <canvas id="game" width="480" height="853"></canvas>
+
+    <section class="hud" aria-label="游戏状态">
+      <div class="top-row">
+        <div class="stats">
+          <div class="stat" id="levelStat">Level 1</div>
+          <div class="stat" id="shotsStat">Shots 3</div>
+          <div class="stat" id="monsterStat">Monsters 2/2</div>
+        </div>
+        <div class="buttons">
+          <button id="restartBtn" type="button">Restart</button>
+          <button id="nextBtn" class="hidden" type="button">Next</button>
+        </div>
+      </div>
+
+      <div class="bottom-row">
+        <div class="power hidden" id="powerMeter">
+          <div id="powerText">Power 0%</div>
+          <div class="power-track"><div class="power-fill" id="powerFill"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="overlay hidden" id="overlay" aria-live="polite">
+      <div class="modal">
+        <h1 id="overlayTitle">Level Complete</h1>
+        <p id="overlayText">Nice shot.</p>
+        <div class="modal-actions">
+          <button id="retryBtn" type="button">Retry</button>
+          <button id="overlayNextBtn" type="button">Next Level</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const WORLD_WIDTH = 480;
+      const WORLD_HEIGHT = 853;
+      const MAX_DRAG = 120;
+      const POWER_SCALE = 8;
+      const FRICTION = 0.985;
+      const STOP_THRESHOLD = 20;
+      const MAX_SPEED = 1200;
+
+      const LEVELS = [
+        {
+          name: "Level 1",
+          shots: 3,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 178, y: 302, type: "normal" },
+            { x: 316, y: 236, type: "normal" }
+          ],
+          crates: [],
+          bombs: [],
+          springs: []
+        },
+        {
+          name: "Level 2",
+          shots: 3,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 126, y: 372, type: "normal" },
+            { x: 382, y: 286, type: "normal" },
+            { x: 432, y: 112, type: "normal" }
+          ],
+          crates: [],
+          bombs: [],
+          springs: []
+        },
+        {
+          name: "Level 3",
+          shots: 4,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 118, y: 264, type: "normal" },
+            { x: 246, y: 218, type: "normal" },
+            { x: 372, y: 315, type: "normal" }
+          ],
+          crates: [
+            { x: 176, y: 394, width: 70, height: 70 },
+            { x: 276, y: 394, width: 70, height: 70 }
+          ],
+          bombs: [],
+          springs: []
+        },
+        {
+          name: "Level 4",
+          shots: 3,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 104, y: 226, type: "normal" },
+            { x: 188, y: 300, type: "normal" },
+            { x: 288, y: 266, type: "normal" },
+            { x: 378, y: 212, type: "normal" },
+            { x: 356, y: 382, type: "normal" }
+          ],
+          crates: [],
+          bombs: [
+            { x: 246, y: 360 }
+          ],
+          springs: []
+        },
+        {
+          name: "Level 5",
+          shots: 4,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 94, y: 255, type: "normal" },
+            { x: 216, y: 174, type: "normal" },
+            { x: 370, y: 278, type: "normal" },
+            { x: 318, y: 412, type: "helmet" }
+          ],
+          crates: [],
+          bombs: [],
+          springs: [
+            { x: 24, y: 410, width: 26, height: 155, angle: 0 },
+            { x: 430, y: 130, width: 26, height: 170, angle: 0 }
+          ]
+        }
+      ];
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+      }
+
+      function length(x, y) {
+        return Math.hypot(x, y);
+      }
+
+      function drawPixelDiamond(ctx, x, y, size, color) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x, y - size);
+        ctx.lineTo(x + size, y);
+        ctx.lineTo(x, y + size);
+        ctx.lineTo(x - size, y);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function rectCircleCollision(circle, rect) {
+        const nearestX = clamp(circle.x, rect.x, rect.x + rect.width);
+        const nearestY = clamp(circle.y, rect.y, rect.y + rect.height);
+        let dx = circle.x - nearestX;
+        let dy = circle.y - nearestY;
+        let dist = Math.hypot(dx, dy);
+
+        if (dist > 0 && dist < circle.radius) {
+          return {
+            hit: true,
+            nx: dx / dist,
+            ny: dy / dist,
+            depth: circle.radius - dist
+          };
+        }
+
+        if (dist === 0) {
+          const left = Math.abs(circle.x - rect.x);
+          const right = Math.abs(rect.x + rect.width - circle.x);
+          const top = Math.abs(circle.y - rect.y);
+          const bottom = Math.abs(rect.y + rect.height - circle.y);
+          const min = Math.min(left, right, top, bottom);
+
+          if (min === left) return { hit: true, nx: -1, ny: 0, depth: circle.radius + left };
+          if (min === right) return { hit: true, nx: 1, ny: 0, depth: circle.radius + right };
+          if (min === top) return { hit: true, nx: 0, ny: -1, depth: circle.radius + top };
+          return { hit: true, nx: 0, ny: 1, depth: circle.radius + bottom };
+        }
+
+        return { hit: false, nx: 0, ny: 0, depth: 0 };
+      }
+
+      class Squash {
+        constructor(start) {
+          this.startX = start.x;
+          this.startY = start.y;
+          this.x = start.x;
+          this.y = start.y;
+          this.radius = 32;
+          this.velocityX = 0;
+          this.velocityY = 0;
+          this.mass = 1;
+          this.bounce = 0.85;
+          this.damage = 1;
+          this.state = "idle";
+          this.stopTimer = 0;
+          this.sprite = null;
+          this.hitSquash = 0;
+        }
+
+        setSprite(sprite) {
+          this.sprite = sprite;
+        }
+
+        contains(point) {
+          return length(point.x - this.x, point.y - this.y) <= this.radius + 18;
+        }
+
+        launch(vx, vy) {
+          const speed = length(vx, vy);
+          const scale = speed > MAX_SPEED ? MAX_SPEED / speed : 1;
+          this.velocityX = vx * scale;
+          this.velocityY = vy * scale;
+          this.state = "moving";
+          this.stopTimer = 0;
+        }
+
+        integrate(dt) {
+          if (this.state !== "moving") return;
+          this.x += this.velocityX * dt;
+          this.y += this.velocityY * dt;
+          const decay = Math.pow(FRICTION, dt * 60);
+          this.velocityX *= decay;
+          this.velocityY *= decay;
+          this.hitSquash = Math.max(0, this.hitSquash - dt * 5);
+        }
+
+        shouldStop(dt) {
+          if (this.state !== "moving") return false;
+          if (length(this.velocityX, this.velocityY) < STOP_THRESHOLD) {
+            this.stopTimer += dt;
+          } else {
+            this.stopTimer = 0;
+          }
+          return this.stopTimer > 0.34;
+        }
+
+        reset() {
+          this.x = this.startX;
+          this.y = this.startY;
+          this.velocityX = 0;
+          this.velocityY = 0;
+          this.state = "idle";
+          this.stopTimer = 0;
+          this.hitSquash = 0;
+        }
+
+        draw(ctx) {
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          const squashY = 1 + this.hitSquash * 0.16;
+          ctx.scale(1 + this.hitSquash * 0.08, squashY);
+
+          if (this.sprite) {
+            const width = 70;
+            const height = 74;
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(this.sprite, -width / 2, -height / 2 - 2, width, height);
+          } else {
+            ctx.fillStyle = "#9ccd57";
+            ctx.strokeStyle = "#172015";
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.ellipse(0, 2, 30, 35, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "#172015";
+            ctx.fillRect(-13, -9, 8, 6);
+            ctx.fillRect(8, -9, 8, 6);
+            ctx.fillRect(-7, 10, 14, 4);
+          }
+
+          ctx.restore();
+        }
+      }
+
+      class Monster {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.baseX = config.x;
+          this.baseY = config.y;
+          this.radius = config.radius || 25;
+          this.type = config.type || "normal";
+          this.maxHp = config.hp || (this.type === "helmet" ? 2 : 1);
+          this.hp = this.maxHp;
+          this.isAlive = true;
+          this.hitCooldown = 0;
+          this.hitFlash = 0;
+          this.deathTimer = 0;
+          this.path = config.path || null;
+          this.pathTime = Math.random() * Math.PI;
+        }
+
+        update(dt) {
+          this.hitCooldown = Math.max(0, this.hitCooldown - dt);
+          this.hitFlash = Math.max(0, this.hitFlash - dt);
+          this.deathTimer = Math.max(0, this.deathTimer - dt);
+
+          if (this.isAlive && this.type === "moving") {
+            this.pathTime += dt * 1.35;
+            const span = this.path?.span || 72;
+            this.x = this.baseX + Math.cos(this.pathTime) * span;
+          }
+        }
+
+        hit(damage, game, force = false) {
+          if (!this.isAlive) return false;
+          if (this.hitCooldown > 0 && !force) return false;
+
+          this.hp -= damage;
+          this.hitCooldown = 0.18;
+          this.hitFlash = 0.18;
+          game.addFloatingText("-" + damage + " HP", this.x, this.y - this.radius - 8, "#fff8dc");
+          game.spawnBurst(this.x, this.y, this.hp <= 0 ? "#f2c94c" : "#cfe477", 12);
+
+          if (this.hp <= 0) {
+            this.isAlive = false;
+            this.deathTimer = 0.34;
+            game.spawnBurst(this.x, this.y, "#83b843", 22);
+          }
+
+          return true;
+        }
+
+        draw(ctx) {
+          if (!this.isAlive && this.deathTimer <= 0) return;
+
+          const dyingScale = this.isAlive ? 1 : Math.max(0.05, this.deathTimer / 0.34);
+          const flash = this.hitFlash > 0;
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.scale(1.08 - dyingScale * 0.08, dyingScale);
+          ctx.fillStyle = flash ? "#fff8dc" : "#68a442";
+          ctx.strokeStyle = "#172015";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.roundRect(-24, -24, 48, 50, 9);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = "#254226";
+          ctx.fillRect(-13, -5, 8, 8);
+          ctx.fillRect(6, -5, 8, 8);
+          ctx.fillRect(-8, 13, 16, 4);
+
+          if (this.type === "helmet") {
+            ctx.fillStyle = "#8a8f95";
+            ctx.strokeStyle = "#172015";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.roundRect(-23, -32, 46, 19, 5);
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          if (this.hp > 1) {
+            ctx.fillStyle = "#d85745";
+            for (let i = 0; i < this.hp; i += 1) {
+              ctx.fillRect(-10 + i * 11, -41, 8, 7);
+            }
+          }
+
+          ctx.restore();
+        }
+      }
+
+      class Crate {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.width = config.width;
+          this.height = config.height;
+          this.hp = config.hp || 1;
+          this.alive = true;
+        }
+
+        hit(game) {
+          if (!this.alive) return;
+          this.hp -= 1;
+          game.spawnBurst(this.x + this.width / 2, this.y + this.height / 2, "#a86c36", 18);
+          if (this.hp <= 0) this.alive = false;
+        }
+
+        draw(ctx) {
+          if (!this.alive) return;
+          ctx.save();
+          ctx.fillStyle = "#ad7139";
+          ctx.strokeStyle = "#3a2415";
+          ctx.lineWidth = 4;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+          ctx.strokeRect(this.x, this.y, this.width, this.height);
+          ctx.strokeStyle = "#6c3e20";
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.moveTo(this.x + 8, this.y + 8);
+          ctx.lineTo(this.x + this.width - 8, this.y + this.height - 8);
+          ctx.moveTo(this.x + this.width - 8, this.y + 8);
+          ctx.lineTo(this.x + 8, this.y + this.height - 8);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      class Bomb {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.radius = config.radius || 24;
+          this.explosionRadius = config.explosionRadius || 120;
+          this.damage = config.damage || 2;
+          this.alive = true;
+          this.flash = 0;
+        }
+
+        explode(game) {
+          if (!this.alive) return;
+          this.alive = false;
+          game.shake = Math.max(game.shake, 13);
+          game.spawnExplosion(this.x, this.y, this.explosionRadius);
+
+          for (const monster of game.monsters) {
+            if (monster.isAlive && length(monster.x - this.x, monster.y - this.y) <= this.explosionRadius) {
+              monster.hit(this.damage, game, true);
+            }
+          }
+        }
+
+        draw(ctx) {
+          if (!this.alive) return;
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.fillStyle = "#d85745";
+          ctx.strokeStyle = "#172015";
+          ctx.lineWidth = 4;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#f2c94c";
+          ctx.fillRect(-9, -29, 18, 9);
+          ctx.strokeRect(-9, -29, 18, 9);
+          ctx.fillStyle = "#fff8dc";
+          ctx.fillRect(-7, -7, 14, 7);
+          ctx.restore();
+        }
+      }
+
+      class Spring {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.width = config.width;
+          this.height = config.height;
+          this.bounceMultiplier = config.bounceMultiplier || 1.5;
+        }
+
+        draw(ctx) {
+          ctx.save();
+          ctx.fillStyle = "#4ca3dd";
+          ctx.strokeStyle = "#172015";
+          ctx.lineWidth = 4;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+          ctx.strokeRect(this.x, this.y, this.width, this.height);
+          ctx.strokeStyle = "#dff6ff";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          const centerX = this.x + this.width / 2;
+          for (let y = this.y + 12; y < this.y + this.height - 8; y += 18) {
+            ctx.moveTo(centerX - 8, y);
+            ctx.lineTo(centerX + 8, y + 8);
+            ctx.lineTo(centerX - 8, y + 16);
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      class Particle {
+        constructor(x, y, vx, vy, color, size, life, gravity = 0) {
+          this.x = x;
+          this.y = y;
+          this.vx = vx;
+          this.vy = vy;
+          this.color = color;
+          this.size = size;
+          this.life = life;
+          this.maxLife = life;
+          this.gravity = gravity;
+        }
+
+        update(dt) {
+          this.life -= dt;
+          this.x += this.vx * dt;
+          this.y += this.vy * dt;
+          this.vy += this.gravity * dt;
+        }
+
+        draw(ctx) {
+          if (this.life <= 0) return;
+          ctx.globalAlpha = clamp(this.life / this.maxLife, 0, 1);
+          drawPixelDiamond(ctx, this.x, this.y, this.size, this.color);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      class FloatingText {
+        constructor(text, x, y, color) {
+          this.text = text;
+          this.x = x;
+          this.y = y;
+          this.color = color;
+          this.life = 0.75;
+          this.maxLife = 0.75;
+        }
+
+        update(dt) {
+          this.life -= dt;
+          this.y -= 44 * dt;
+        }
+
+        draw(ctx) {
+          if (this.life <= 0) return;
+          ctx.save();
+          ctx.globalAlpha = clamp(this.life / this.maxLife, 0, 1);
+          ctx.font = "900 16px system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#172015";
+          ctx.fillStyle = this.color;
+          ctx.strokeText(this.text, this.x, this.y);
+          ctx.fillText(this.text, this.x, this.y);
+          ctx.restore();
+        }
+      }
+
+      class Game {
+        constructor() {
+          this.canvas = document.getElementById("game");
+          this.ctx = this.canvas.getContext("2d");
+          this.ctx.imageSmoothingEnabled = false;
+
+          this.levelStat = document.getElementById("levelStat");
+          this.shotsStat = document.getElementById("shotsStat");
+          this.monsterStat = document.getElementById("monsterStat");
+          this.restartBtn = document.getElementById("restartBtn");
+          this.nextBtn = document.getElementById("nextBtn");
+          this.powerMeter = document.getElementById("powerMeter");
+          this.powerFill = document.getElementById("powerFill");
+          this.powerText = document.getElementById("powerText");
+          this.overlay = document.getElementById("overlay");
+          this.overlayTitle = document.getElementById("overlayTitle");
+          this.overlayText = document.getElementById("overlayText");
+          this.retryBtn = document.getElementById("retryBtn");
+          this.overlayNextBtn = document.getElementById("overlayNextBtn");
+
+          this.levelIndex = 0;
+          this.state = "playing";
+          this.shotsLeft = 0;
+          this.aiming = false;
+          this.pointerId = null;
+          this.dragPoint = { x: 0, y: 0 };
+          this.particles = [];
+          this.floatTexts = [];
+          this.shake = 0;
+          this.lastTime = performance.now();
+          this.squashSprite = null;
+
+          this.loadSquashSprite();
+          this.bindEvents();
+          this.loadLevel(0);
+          requestAnimationFrame((time) => this.loop(time));
+        }
+
+        loadSquashSprite() {
+          const image = new Image();
+          image.onload = () => {
+            this.squashSprite = this.createTransparentPixelSprite(image);
+            if (this.squash) this.squash.setSprite(this.squashSprite);
+          };
+          image.src = "assets/wogua.png";
+        }
+
+        createTransparentPixelSprite(image) {
+          const offscreen = document.createElement("canvas");
+          offscreen.width = image.naturalWidth;
+          offscreen.height = image.naturalHeight;
+          const offCtx = offscreen.getContext("2d", { willReadFrequently: true });
+          offCtx.imageSmoothingEnabled = false;
+          offCtx.drawImage(image, 0, 0);
+          const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
+          const data = imageData.data;
+
+          for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            if (r > 220 && g > 220 && b > 220) {
+              data[i + 3] = 0;
+            }
+          }
+
+          offCtx.putImageData(imageData, 0, 0);
+          return offscreen;
+        }
+
+        bindEvents() {
+          this.canvas.addEventListener("pointerdown", (event) => this.onPointerDown(event));
+          this.canvas.addEventListener("pointermove", (event) => this.onPointerMove(event));
+          this.canvas.addEventListener("pointerup", (event) => this.onPointerUp(event));
+          this.canvas.addEventListener("pointercancel", (event) => this.onPointerUp(event));
+          this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
+
+          this.restartBtn.addEventListener("click", () => this.loadLevel(this.levelIndex));
+          this.retryBtn.addEventListener("click", () => this.loadLevel(this.levelIndex));
+          this.nextBtn.addEventListener("click", () => this.nextLevel());
+          this.overlayNextBtn.addEventListener("click", () => this.nextLevel());
+        }
+
+        loadLevel(index) {
+          const safeIndex = (index + LEVELS.length) % LEVELS.length;
+          const level = LEVELS[safeIndex];
+
+          this.levelIndex = safeIndex;
+          this.state = "playing";
+          this.shotsLeft = level.shots;
+          this.aiming = false;
+          this.pointerId = null;
+          this.particles = [];
+          this.floatTexts = [];
+          this.shake = 0;
+          this.squash = new Squash(level.start);
+          if (this.squashSprite) this.squash.setSprite(this.squashSprite);
+          this.monsters = level.monsters.map((config) => new Monster(config));
+          this.crates = level.crates.map((config) => new Crate(config));
+          this.bombs = level.bombs.map((config) => new Bomb(config));
+          this.springs = level.springs.map((config) => new Spring(config));
+
+          this.overlay.classList.add("hidden");
+          this.overlayNextBtn.classList.remove("hidden");
+          this.nextBtn.classList.add("hidden");
+          this.syncUI();
+        }
+
+        nextLevel() {
+          this.loadLevel(this.levelIndex + 1);
+        }
+
+        getPointer(event) {
+          const rect = this.canvas.getBoundingClientRect();
+          return {
+            x: ((event.clientX - rect.left) / rect.width) * WORLD_WIDTH,
+            y: ((event.clientY - rect.top) / rect.height) * WORLD_HEIGHT
+          };
+        }
+
+        onPointerDown(event) {
+          event.preventDefault();
+          if (this.state !== "playing") return;
+          if (this.squash.state !== "idle") return;
+          if (this.shotsLeft <= 0) return;
+
+          const point = this.getPointer(event);
+          if (!this.squash.contains(point)) return;
+
+          this.aiming = true;
+          this.pointerId = event.pointerId;
+          this.dragPoint = point;
+          this.squash.state = "aiming";
+          this.canvas.setPointerCapture(event.pointerId);
+        }
+
+        onPointerMove(event) {
+          if (!this.aiming || event.pointerId !== this.pointerId) return;
+          event.preventDefault();
+          this.dragPoint = this.getPointer(event);
+          this.syncUI();
+        }
+
+        onPointerUp(event) {
+          if (!this.aiming || event.pointerId !== this.pointerId) return;
+          event.preventDefault();
+
+          const launch = this.getLaunchVector();
+          this.aiming = false;
+          this.pointerId = null;
+          this.canvas.releasePointerCapture(event.pointerId);
+
+          if (launch.power > 10 && this.shotsLeft > 0) {
+            this.squash.launch(launch.vx, launch.vy);
+            this.shotsLeft -= 1;
+            this.shake = Math.max(this.shake, 4);
+            this.spawnBurst(this.squash.x, this.squash.y, "#f2c94c", 8);
+          } else {
+            this.squash.state = "idle";
+          }
+
+          this.syncUI();
+        }
+
+        getLaunchVector() {
+          const dx = this.squash.x - this.dragPoint.x;
+          const dy = this.squash.y - this.dragPoint.y;
+          const distance = length(dx, dy);
+          if (distance < 0.001) {
+            return { vx: 0, vy: 0, power: 0, percent: 0, nx: 0, ny: -1 };
+          }
+
+          const power = clamp(distance, 0, MAX_DRAG);
+          const nx = dx / distance;
+          const ny = dy / distance;
+          return {
+            vx: nx * power * POWER_SCALE,
+            vy: ny * power * POWER_SCALE,
+            power,
+            percent: power / MAX_DRAG,
+            nx,
+            ny
+          };
+        }
+
+        loop(time) {
+          const dt = Math.min(0.033, (time - this.lastTime) / 1000 || 0);
+          this.lastTime = time;
+          this.update(dt, time / 1000);
+          this.draw();
+          requestAnimationFrame((nextTime) => this.loop(nextTime));
+        }
+
+        update(dt) {
+          for (const monster of this.monsters) monster.update(dt);
+
+          if (this.state === "playing") {
+            this.squash.integrate(dt);
+            if (this.squash.state === "moving") {
+              this.handleBounds();
+              this.handleCollisions();
+
+              if (this.squash.shouldStop(dt)) {
+                this.finishShot();
+              }
+            }
+
+            if (this.monsters.every((monster) => !monster.isAlive)) {
+              this.completeLevel();
+            }
+          }
+
+          this.particles = this.particles.filter((particle) => {
+            particle.update(dt);
+            return particle.life > 0;
+          });
+
+          this.floatTexts = this.floatTexts.filter((text) => {
+            text.update(dt);
+            return text.life > 0;
+          });
+
+          this.shake = Math.max(0, this.shake - dt * 30);
+          this.syncUI();
+        }
+
+        handleBounds() {
+          const s = this.squash;
+          const r = s.radius;
+          let hit = false;
+
+          if (s.x - r < 0) {
+            s.x = r;
+            s.velocityX = Math.abs(s.velocityX) * s.bounce;
+            hit = true;
+          } else if (s.x + r > WORLD_WIDTH) {
+            s.x = WORLD_WIDTH - r;
+            s.velocityX = -Math.abs(s.velocityX) * s.bounce;
+            hit = true;
+          }
+
+          if (s.y - r < 0) {
+            s.y = r;
+            s.velocityY = Math.abs(s.velocityY) * s.bounce;
+            hit = true;
+          } else if (s.y + r > WORLD_HEIGHT - 14) {
+            s.y = WORLD_HEIGHT - 14 - r;
+            s.velocityY = -Math.abs(s.velocityY) * s.bounce;
+            hit = true;
+          }
+
+          if (hit) this.onBounce(s.x, s.y, "#fff8dc", 0.85);
+        }
+
+        handleCollisions() {
+          const s = this.squash;
+
+          for (const monster of this.monsters) {
+            if (!monster.isAlive) continue;
+            const dx = s.x - monster.x;
+            const dy = s.y - monster.y;
+            const dist = length(dx, dy);
+            const minDist = s.radius + monster.radius;
+
+            if (dist > 0 && dist < minDist) {
+              const nx = dx / dist;
+              const ny = dy / dist;
+              const depth = minDist - dist;
+              s.x += nx * depth;
+              s.y += ny * depth;
+              this.reflectSquash(nx, ny, 0.92, 1);
+              s.hitSquash = 1;
+
+              if (monster.hit(s.damage, this)) {
+                this.shake = Math.max(this.shake, 8);
+              }
+            }
+          }
+
+          for (const crate of this.crates) {
+            if (!crate.alive) continue;
+            const collision = rectCircleCollision(s, crate);
+            if (!collision.hit) continue;
+
+            s.x += collision.nx * (collision.depth + 1);
+            s.y += collision.ny * (collision.depth + 1);
+            this.reflectSquash(collision.nx, collision.ny, 0.82, 0.92);
+            crate.hit(this);
+            s.hitSquash = 1;
+            this.shake = Math.max(this.shake, 7);
+          }
+
+          for (const bomb of this.bombs) {
+            if (!bomb.alive) continue;
+            const dx = s.x - bomb.x;
+            const dy = s.y - bomb.y;
+            const dist = length(dx, dy);
+            if (dist > 0 && dist < s.radius + bomb.radius) {
+              const nx = dx / dist;
+              const ny = dy / dist;
+              s.x += nx * (s.radius + bomb.radius - dist + 1);
+              s.y += ny * (s.radius + bomb.radius - dist + 1);
+              this.reflectSquash(nx, ny, 0.9, 1.05);
+              bomb.explode(this);
+              s.hitSquash = 1;
+            }
+          }
+
+          for (const spring of this.springs) {
+            const collision = rectCircleCollision(s, spring);
+            if (!collision.hit) continue;
+
+            s.x += collision.nx * (collision.depth + 1);
+            s.y += collision.ny * (collision.depth + 1);
+            this.reflectSquash(collision.nx, collision.ny, 0.98, spring.bounceMultiplier);
+            s.hitSquash = 1;
+            this.shake = Math.max(this.shake, 6);
+            this.spawnBurst(s.x, s.y, "#4ca3dd", 10);
+          }
+        }
+
+        reflectSquash(nx, ny, bounce, boost) {
+          const s = this.squash;
+          const dot = s.velocityX * nx + s.velocityY * ny;
+          if (dot < 0) {
+            s.velocityX = (s.velocityX - 2 * dot * nx) * bounce * boost;
+            s.velocityY = (s.velocityY - 2 * dot * ny) * bounce * boost;
+          } else {
+            s.velocityX += nx * 90;
+            s.velocityY += ny * 90;
+          }
+
+          const speed = length(s.velocityX, s.velocityY);
+          if (speed > MAX_SPEED) {
+            s.velocityX = (s.velocityX / speed) * MAX_SPEED;
+            s.velocityY = (s.velocityY / speed) * MAX_SPEED;
+          }
+        }
+
+        onBounce(x, y, color, strength) {
+          this.shake = Math.max(this.shake, 3 + 4 * strength);
+          this.spawnBurst(x, y, color, 7);
+        }
+
+        finishShot() {
+          if (this.monsters.every((monster) => !monster.isAlive)) {
+            this.completeLevel();
+            return;
+          }
+
+          if (this.shotsLeft <= 0) {
+            this.failLevel();
+            return;
+          }
+
+          this.squash.reset();
+        }
+
+        completeLevel() {
+          if (this.state !== "playing") return;
+          this.state = "complete";
+          this.squash.velocityX = 0;
+          this.squash.velocityY = 0;
+          this.nextBtn.classList.remove("hidden");
+          this.overlayNextBtn.classList.remove("hidden");
+          this.overlayTitle.textContent = this.levelIndex === LEVELS.length - 1 ? "All Clear" : "Level Complete";
+          this.overlayText.textContent = this.levelIndex === LEVELS.length - 1 ? "5 个关卡全部清空" : "继续下一关";
+          this.overlayNextBtn.textContent = this.levelIndex === LEVELS.length - 1 ? "Play Again" : "Next Level";
+          this.overlay.classList.remove("hidden");
+        }
+
+        failLevel() {
+          if (this.state !== "playing") return;
+          this.state = "failed";
+          this.squash.velocityX = 0;
+          this.squash.velocityY = 0;
+          this.overlayTitle.textContent = "Level Failed";
+          this.overlayText.textContent = "Retry";
+          this.overlayNextBtn.textContent = "Next Level";
+          this.overlayNextBtn.classList.add("hidden");
+          this.overlay.classList.remove("hidden");
+        }
+
+        syncUI() {
+          const total = this.monsters.length || 1;
+          const alive = this.monsters.filter((monster) => monster.isAlive).length;
+          this.levelStat.textContent = `Level ${this.levelIndex + 1}`;
+          this.shotsStat.textContent = `Shots ${this.shotsLeft}`;
+          this.monsterStat.textContent = `Monsters ${alive}/${total}`;
+
+          if (this.aiming) {
+            const launch = this.getLaunchVector();
+            this.powerMeter.classList.remove("hidden");
+            this.powerFill.style.width = `${Math.round(launch.percent * 100)}%`;
+            this.powerText.textContent = `Power ${Math.round(launch.percent * 100)}%`;
+          } else {
+            this.powerMeter.classList.add("hidden");
+          }
+        }
+
+        spawnBurst(x, y, color, count) {
+          for (let i = 0; i < count; i += 1) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 55 + Math.random() * 145;
+            this.particles.push(new Particle(
+              x,
+              y,
+              Math.cos(angle) * speed,
+              Math.sin(angle) * speed,
+              color,
+              2 + Math.random() * 4,
+              0.35 + Math.random() * 0.38,
+              140
+            ));
+          }
+        }
+
+        spawnExplosion(x, y, radius) {
+          for (let i = 0; i < 46; i += 1) {
+            const angle = (Math.PI * 2 * i) / 46;
+            const speed = radius * (0.85 + Math.random() * 0.5);
+            this.particles.push(new Particle(
+              x,
+              y,
+              Math.cos(angle) * speed,
+              Math.sin(angle) * speed,
+              i % 2 === 0 ? "#f2c94c" : "#d85745",
+              4 + Math.random() * 5,
+              0.55 + Math.random() * 0.28,
+              -20
+            ));
+          }
+        }
+
+        addFloatingText(text, x, y, color) {
+          this.floatTexts.push(new FloatingText(text, x, y, color));
+        }
+
+        draw() {
+          const ctx = this.ctx;
+          ctx.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+          ctx.save();
+          if (this.shake > 0) {
+            ctx.translate((Math.random() - 0.5) * this.shake, (Math.random() - 0.5) * this.shake);
+          }
+
+          this.drawBackground(ctx);
+          if (this.aiming) this.drawAim(ctx);
+
+          for (const spring of this.springs) spring.draw(ctx);
+          for (const crate of this.crates) crate.draw(ctx);
+          for (const bomb of this.bombs) bomb.draw(ctx);
+          for (const monster of this.monsters) monster.draw(ctx);
+          this.squash.draw(ctx);
+          for (const particle of this.particles) particle.draw(ctx);
+          for (const text of this.floatTexts) text.draw(ctx);
+
+          ctx.restore();
+        }
+
+        drawBackground(ctx) {
+          const sky = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
+          sky.addColorStop(0, "#b9eef0");
+          sky.addColorStop(0.62, "#f3dca0");
+          sky.addColorStop(1, "#7fb85a");
+          ctx.fillStyle = sky;
+          ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+
+          ctx.fillStyle = "rgba(255, 248, 220, 0.78)";
+          this.drawCloud(ctx, 78, 122, 34);
+          this.drawCloud(ctx, 344, 82, 26);
+
+          ctx.fillStyle = "#79a95a";
+          ctx.beginPath();
+          ctx.moveTo(0, 560);
+          ctx.quadraticCurveTo(120, 502, 235, 566);
+          ctx.quadraticCurveTo(358, 628, 480, 548);
+          ctx.lineTo(480, WORLD_HEIGHT);
+          ctx.lineTo(0, WORLD_HEIGHT);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#547a3f";
+          for (let x = -20; x < WORLD_WIDTH; x += 32) {
+            ctx.fillRect(x, WORLD_HEIGHT - 34, 22, 20);
+            ctx.fillRect(x + 8, WORLD_HEIGHT - 49, 8, 15);
+          }
+
+          ctx.fillStyle = "rgba(36, 51, 34, 0.18)";
+          for (let x = 0; x < WORLD_WIDTH; x += 24) {
+            ctx.fillRect(x, WORLD_HEIGHT - 16, 12, 4);
+          }
+        }
+
+        drawCloud(ctx, x, y, size) {
+          ctx.beginPath();
+          ctx.arc(x, y, size, 0, Math.PI * 2);
+          ctx.arc(x + size * 0.8, y + 6, size * 0.82, 0, Math.PI * 2);
+          ctx.arc(x - size * 0.9, y + 9, size * 0.72, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        drawAim(ctx) {
+          const launch = this.getLaunchVector();
+          const startX = this.squash.x;
+          const startY = this.squash.y;
+          const previewLength = 78 + launch.percent * 160;
+
+          ctx.save();
+          ctx.strokeStyle = "#172015";
+          ctx.lineWidth = 4;
+          ctx.setLineDash([8, 8]);
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(startX + launch.nx * previewLength, startY + launch.ny * previewLength);
+          ctx.stroke();
+
+          ctx.setLineDash([]);
+          ctx.fillStyle = "#f2c94c";
+          for (let i = 1; i <= 6; i += 1) {
+            const t = i / 6;
+            const px = startX + launch.nx * previewLength * t;
+            const py = startY + launch.ny * previewLength * t + 10 * t * t;
+            ctx.fillRect(px - 4, py - 4, 8, 8);
+          }
+
+          ctx.strokeStyle = "#d85745";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(startX, startY);
+          ctx.lineTo(this.dragPoint.x, this.dragPoint.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      new Game();
+    })();
+  </script>
+</body>
+</html>
