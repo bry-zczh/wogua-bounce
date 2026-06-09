@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="icon" href="assets/wogua.png">
   <title>窝瓜弹弹乐</title>
   <style>
     :root {
@@ -45,6 +46,7 @@
       background: #b6e7dc;
       border: 4px solid #0d120c;
       box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      isolation: isolate;
     }
 
     canvas {
@@ -63,6 +65,7 @@
     .hud {
       position: absolute;
       inset: 0;
+      z-index: 5;
       pointer-events: none;
       padding: 12px;
       display: flex;
@@ -159,6 +162,7 @@
     .overlay {
       position: absolute;
       inset: 0;
+      z-index: 20;
       display: grid;
       place-items: center;
       padding: 22px;
@@ -196,6 +200,209 @@
       flex-wrap: wrap;
     }
 
+    .screen {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background:
+        linear-gradient(rgba(22, 32, 22, 0.22), rgba(22, 32, 22, 0.54)),
+        repeating-linear-gradient(0deg, rgba(255, 248, 220, 0.08) 0 3px, transparent 3px 8px);
+      pointer-events: auto;
+    }
+
+    .screen-panel {
+      width: min(390px, 100%);
+      max-height: calc(100% - 12px);
+      overflow: auto;
+      border: 4px solid #172015;
+      background: var(--paper);
+      box-shadow: 0 8px 0 #172015;
+      padding: 16px;
+      scrollbar-width: thin;
+    }
+
+    .menu-panel {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: min(520px, 86%);
+      overflow: hidden;
+    }
+
+    .brand-mark {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 12px;
+      display: grid;
+      place-items: center;
+      border: 4px solid #172015;
+      background: #cfe477;
+      box-shadow: 0 5px 0 #172015;
+    }
+
+    .brand-mark img {
+      width: 72px;
+      height: 72px;
+      image-rendering: pixelated;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+    }
+
+    .menu-panel h1,
+    .screen-panel h2 {
+      margin: 0;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .menu-panel h1 {
+      font-size: 36px;
+    }
+
+    .screen-panel h2 {
+      font-size: 25px;
+    }
+
+    .menu-subtitle {
+      margin: 10px auto 18px;
+      width: min(260px, 100%);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .menu-actions,
+    .screen-actions {
+      display: grid;
+      gap: 9px;
+    }
+
+    .menu-actions button,
+    .screen-actions button {
+      width: 100%;
+      min-height: 42px;
+      font-size: 15px;
+    }
+
+    .screen-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .screen-top button {
+      flex: 0 0 auto;
+    }
+
+    .level-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .level-card {
+      min-height: 124px;
+      padding: 10px;
+      text-align: left;
+      line-height: 1.25;
+      background: var(--paper);
+    }
+
+    .level-card.is-current {
+      background: #f2c94c;
+    }
+
+    .level-card strong,
+    .codex-card strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .level-card span,
+    .codex-card span,
+    .level-card small {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .level-card small {
+      margin-top: 7px;
+      color: #5a3b1e;
+    }
+
+    .codex-section + .codex-section {
+      margin-top: 14px;
+    }
+
+    .codex-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin: 0 0 12px;
+    }
+
+    .codex-tabs button {
+      min-width: 0;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+
+    .codex-tabs button.is-active {
+      background: var(--accent);
+    }
+
+    .codex-section h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.2;
+    }
+
+    .codex-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .codex-card {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      border: 3px solid #172015;
+      background: var(--paper);
+      padding: 8px;
+    }
+
+    .codex-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 3px solid #172015;
+      background: #cfe477;
+      color: #172015;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .codex-icon.terrain {
+      background: #8ed1d4;
+    }
+
+    .codex-icon.level {
+      background: #f2c94c;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -212,12 +419,72 @@
         padding-left: 7px;
         padding-right: 7px;
       }
+
+      .screen {
+        padding: 12px;
+      }
+
+      .screen-panel {
+        padding: 12px;
+      }
+
+      .menu-panel h1 {
+        font-size: 30px;
+      }
+
+      .screen-panel h2 {
+        font-size: 22px;
+      }
+
+      .level-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .level-card {
+        min-height: 102px;
+      }
     }
   </style>
 </head>
 <body>
   <main class="game-shell" aria-label="窝瓜弹弹乐游戏区域">
     <canvas id="game" width="480" height="853"></canvas>
+
+    <section class="screen" id="mainMenu" aria-label="主界面">
+      <div class="screen-panel menu-panel">
+        <div class="brand-mark">
+          <img src="assets/wogua.png" alt="窝瓜">
+        </div>
+        <h1>窝瓜弹弹乐</h1>
+        <p class="menu-subtitle">弹开机关，清空怪物，五关连打。</p>
+        <div class="menu-actions">
+          <button id="startBtn" type="button">开始游戏</button>
+          <button id="levelSelectBtn" type="button">选择关卡</button>
+          <button id="codexBtn" type="button">地形怪物图鉴</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="levelSelect" aria-label="关卡选择">
+      <div class="screen-panel">
+        <div class="screen-top">
+          <h2>选择关卡</h2>
+          <button class="backToMenuBtn" type="button">返回</button>
+        </div>
+        <div class="level-grid" id="levelGrid"></div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="codexScreen" aria-label="地形怪物图鉴">
+      <div class="screen-panel">
+        <div class="screen-top">
+          <h2>机制图鉴</h2>
+          <button class="backToMenuBtn" type="button">返回</button>
+        </div>
+        <div class="codex-tabs" id="codexTabs"></div>
+        <div id="codexContent"></div>
+      </div>
+    </section>
 
     <section class="hud" aria-label="游戏状态">
       <div class="top-row">
@@ -227,8 +494,9 @@
           <div class="stat" id="monsterStat">Monsters 2/2</div>
         </div>
         <div class="buttons">
-          <button id="restartBtn" type="button">Restart</button>
-          <button id="nextBtn" class="hidden" type="button">Next</button>
+          <button id="menuBtn" type="button">菜单</button>
+          <button id="restartBtn" type="button">重玩</button>
+          <button id="nextBtn" class="hidden" type="button">下一关</button>
         </div>
       </div>
 
@@ -245,8 +513,9 @@
         <h1 id="overlayTitle">Level Complete</h1>
         <p id="overlayText">Nice shot.</p>
         <div class="modal-actions">
-          <button id="retryBtn" type="button">Retry</button>
-          <button id="overlayNextBtn" type="button">Next Level</button>
+          <button id="retryBtn" type="button">重试</button>
+          <button id="overlayMenuBtn" type="button">主界面</button>
+          <button id="overlayNextBtn" type="button">下一关</button>
         </div>
       </div>
     </section>
@@ -267,6 +536,9 @@
       const LEVELS = [
         {
           name: "Level 1",
+          title: "第1关 起步反弹",
+          mechanics: ["普通怪", "墙面反弹"],
+          note: "基础清怪关，熟悉边界反弹。",
           shots: 3,
           start: { x: 240, y: 735 },
           monsters: [
@@ -279,6 +551,9 @@
         },
         {
           name: "Level 2",
+          title: "第2关 斜线清场",
+          mechanics: ["普通怪", "多目标"],
+          note: "怪物分散，需要利用角度串联命中。",
           shots: 3,
           start: { x: 240, y: 735 },
           monsters: [
@@ -292,6 +567,9 @@
         },
         {
           name: "Level 3",
+          title: "第3关 木箱挡路",
+          mechanics: ["木箱", "障碍反弹"],
+          note: "木箱会挡住路线，被撞后碎裂消失。",
           shots: 4,
           start: { x: 240, y: 735 },
           monsters: [
@@ -308,6 +586,9 @@
         },
         {
           name: "Level 4",
+          title: "第4关 炸弹桶",
+          mechanics: ["炸弹桶", "范围伤害"],
+          note: "击中炸弹桶会爆炸，范围内怪物受伤。",
           shots: 3,
           start: { x: 240, y: 735 },
           monsters: [
@@ -325,6 +606,9 @@
         },
         {
           name: "Level 5",
+          title: "第5关 弹簧夹击",
+          mechanics: ["头盔怪", "弹簧墙"],
+          note: "头盔怪需要两次伤害，弹簧墙会强化反弹。",
           shots: 4,
           start: { x: 240, y: 735 },
           monsters: [
@@ -339,6 +623,36 @@
             { x: 24, y: 410, width: 26, height: 155, angle: 0 },
             { x: 430, y: 130, width: 26, height: 170, angle: 0 }
           ]
+        }
+      ];
+
+      const CODEX_SECTIONS = [
+        {
+          title: "怪物",
+          iconClass: "",
+          items: [
+            { icon: "1", name: "普通怪", text: "1 点生命。被窝瓜撞到后消失，是前两关的主要目标。" },
+            { icon: "2", name: "头盔怪", text: "2 点生命。第一次命中只会扣血，第二次命中才会清除。" }
+          ]
+        },
+        {
+          title: "地形与机关",
+          iconClass: "terrain",
+          items: [
+            { icon: "箱", name: "木箱", text: "会阻挡窝瓜路线，被撞后破碎，可当作一次反弹点。" },
+            { icon: "爆", name: "炸弹桶", text: "被撞后立即爆炸，范围内怪物受到 2 点伤害。" },
+            { icon: "弹", name: "弹簧墙", text: "碰撞后按更高速度反弹，适合在窄角度里补刀。" },
+            { icon: "边", name: "边界反弹", text: "窝瓜撞到四周边界会反弹，速度会稍微衰减。" }
+          ]
+        },
+        {
+          title: "关卡机制",
+          iconClass: "level",
+          items: LEVELS.map((level, index) => ({
+            icon: String(index + 1),
+            name: level.title,
+            text: `${level.mechanics.join(" / ")}。${level.note}`
+          }))
         }
       ];
 
@@ -753,9 +1067,21 @@
           this.ctx = this.canvas.getContext("2d");
           this.ctx.imageSmoothingEnabled = false;
 
+          this.hud = document.querySelector(".hud");
+          this.mainMenu = document.getElementById("mainMenu");
+          this.levelSelect = document.getElementById("levelSelect");
+          this.codexScreen = document.getElementById("codexScreen");
+          this.startBtn = document.getElementById("startBtn");
+          this.levelSelectBtn = document.getElementById("levelSelectBtn");
+          this.codexBtn = document.getElementById("codexBtn");
+          this.levelGrid = document.getElementById("levelGrid");
+          this.codexTabs = document.getElementById("codexTabs");
+          this.codexContent = document.getElementById("codexContent");
+          this.backToMenuBtns = document.querySelectorAll(".backToMenuBtn");
           this.levelStat = document.getElementById("levelStat");
           this.shotsStat = document.getElementById("shotsStat");
           this.monsterStat = document.getElementById("monsterStat");
+          this.menuBtn = document.getElementById("menuBtn");
           this.restartBtn = document.getElementById("restartBtn");
           this.nextBtn = document.getElementById("nextBtn");
           this.powerMeter = document.getElementById("powerMeter");
@@ -765,10 +1091,11 @@
           this.overlayTitle = document.getElementById("overlayTitle");
           this.overlayText = document.getElementById("overlayText");
           this.retryBtn = document.getElementById("retryBtn");
+          this.overlayMenuBtn = document.getElementById("overlayMenuBtn");
           this.overlayNextBtn = document.getElementById("overlayNextBtn");
 
           this.levelIndex = 0;
-          this.state = "playing";
+          this.state = "menu";
           this.shotsLeft = 0;
           this.aiming = false;
           this.pointerId = null;
@@ -778,10 +1105,14 @@
           this.shake = 0;
           this.lastTime = performance.now();
           this.squashSprite = null;
+          this.activeCodexIndex = 0;
 
           this.loadSquashSprite();
           this.bindEvents();
-          this.loadLevel(0);
+          this.renderLevelSelect();
+          this.renderCodex();
+          this.loadLevel(0, { play: false });
+          this.showMainMenu();
           requestAnimationFrame((time) => this.loop(time));
         }
 
@@ -824,18 +1155,150 @@
           this.canvas.addEventListener("pointercancel", (event) => this.onPointerUp(event));
           this.canvas.addEventListener("contextmenu", (event) => event.preventDefault());
 
+          this.startBtn.addEventListener("click", () => this.startLevel(0));
+          this.levelSelectBtn.addEventListener("click", () => this.showLevelSelect());
+          this.codexBtn.addEventListener("click", () => this.showCodex());
+          for (const button of this.backToMenuBtns) {
+            button.addEventListener("click", () => this.showMainMenu());
+          }
+          this.menuBtn.addEventListener("click", () => this.showMainMenu());
           this.restartBtn.addEventListener("click", () => this.loadLevel(this.levelIndex));
           this.retryBtn.addEventListener("click", () => this.loadLevel(this.levelIndex));
+          this.overlayMenuBtn.addEventListener("click", () => this.showMainMenu());
           this.nextBtn.addEventListener("click", () => this.nextLevel());
           this.overlayNextBtn.addEventListener("click", () => this.nextLevel());
         }
 
-        loadLevel(index) {
+        renderLevelSelect() {
+          this.levelGrid.textContent = "";
+
+          LEVELS.forEach((level, index) => {
+            const card = document.createElement("button");
+            card.type = "button";
+            card.className = "level-card";
+            card.dataset.level = String(index);
+
+            const title = document.createElement("strong");
+            title.textContent = level.title;
+
+            const mechanics = document.createElement("span");
+            mechanics.textContent = level.mechanics.join(" / ");
+
+            const note = document.createElement("small");
+            note.textContent = level.note;
+
+            card.append(title, mechanics, note);
+            card.addEventListener("click", () => this.startLevel(index));
+            this.levelGrid.append(card);
+          });
+        }
+
+        renderCodex() {
+          this.codexTabs.textContent = "";
+
+          CODEX_SECTIONS.forEach((section, index) => {
+            const tab = document.createElement("button");
+            tab.type = "button";
+            tab.textContent = section.title;
+            tab.className = index === this.activeCodexIndex ? "is-active" : "";
+            tab.addEventListener("click", () => {
+              this.activeCodexIndex = index;
+              this.renderCodex();
+            });
+            this.codexTabs.append(tab);
+          });
+
+          this.codexContent.textContent = "";
+          const section = CODEX_SECTIONS[this.activeCodexIndex];
+
+          const sectionEl = document.createElement("section");
+          sectionEl.className = "codex-section";
+
+          const heading = document.createElement("h3");
+          heading.textContent = section.title;
+
+          const list = document.createElement("div");
+          list.className = "codex-list";
+
+          for (const item of section.items) {
+            const card = document.createElement("article");
+            card.className = "codex-card";
+
+            const icon = document.createElement("div");
+            icon.className = `codex-icon ${section.iconClass}`.trim();
+            icon.textContent = item.icon;
+
+            const body = document.createElement("div");
+            const name = document.createElement("strong");
+            name.textContent = item.name;
+            const text = document.createElement("span");
+            text.textContent = item.text;
+            body.append(name, text);
+
+            card.append(icon, body);
+            list.append(card);
+          }
+
+          sectionEl.append(heading, list);
+          this.codexContent.append(sectionEl);
+        }
+
+        startLevel(index) {
+          this.loadLevel(index, { play: true });
+        }
+
+        showScreen(screen) {
+          this.mainMenu.classList.toggle("hidden", screen !== "menu");
+          this.levelSelect.classList.toggle("hidden", screen !== "levels");
+          this.codexScreen.classList.toggle("hidden", screen !== "codex");
+        }
+
+        showMainMenu() {
+          this.state = "menu";
+          this.aiming = false;
+          this.pointerId = null;
+          if (this.squash) {
+            this.squash.velocityX = 0;
+            this.squash.velocityY = 0;
+            if (this.squash.state !== "idle") this.squash.reset();
+          }
+          this.overlay.classList.add("hidden");
+          this.nextBtn.classList.add("hidden");
+          this.powerMeter.classList.add("hidden");
+          this.hud.classList.add("hidden");
+          this.showScreen("menu");
+          this.updateLevelCards();
+        }
+
+        showLevelSelect() {
+          this.state = "menu";
+          this.overlay.classList.add("hidden");
+          this.hud.classList.add("hidden");
+          this.showScreen("levels");
+          this.updateLevelCards();
+        }
+
+        showCodex() {
+          this.state = "menu";
+          this.overlay.classList.add("hidden");
+          this.hud.classList.add("hidden");
+          this.showScreen("codex");
+        }
+
+        updateLevelCards() {
+          const cards = this.levelGrid.querySelectorAll(".level-card");
+          cards.forEach((card) => {
+            card.classList.toggle("is-current", Number(card.dataset.level) === this.levelIndex);
+          });
+        }
+
+        loadLevel(index, options = {}) {
           const safeIndex = (index + LEVELS.length) % LEVELS.length;
           const level = LEVELS[safeIndex];
+          const play = options.play !== false;
 
           this.levelIndex = safeIndex;
-          this.state = "playing";
+          this.state = play ? "playing" : "menu";
           this.shotsLeft = level.shots;
           this.aiming = false;
           this.pointerId = null;
@@ -851,7 +1314,11 @@
 
           this.overlay.classList.add("hidden");
           this.overlayNextBtn.classList.remove("hidden");
+          this.nextBtn.textContent = "下一关";
           this.nextBtn.classList.add("hidden");
+          this.showScreen(null);
+          this.hud.classList.toggle("hidden", !play);
+          this.updateLevelCards();
           this.syncUI();
         }
 
@@ -1112,9 +1579,10 @@
           this.squash.velocityY = 0;
           this.nextBtn.classList.remove("hidden");
           this.overlayNextBtn.classList.remove("hidden");
-          this.overlayTitle.textContent = this.levelIndex === LEVELS.length - 1 ? "All Clear" : "Level Complete";
+          this.overlayTitle.textContent = this.levelIndex === LEVELS.length - 1 ? "全部通关" : "关卡完成";
           this.overlayText.textContent = this.levelIndex === LEVELS.length - 1 ? "5 个关卡全部清空" : "继续下一关";
-          this.overlayNextBtn.textContent = this.levelIndex === LEVELS.length - 1 ? "Play Again" : "Next Level";
+          this.nextBtn.textContent = this.levelIndex === LEVELS.length - 1 ? "再玩一轮" : "下一关";
+          this.overlayNextBtn.textContent = this.levelIndex === LEVELS.length - 1 ? "再玩一轮" : "下一关";
           this.overlay.classList.remove("hidden");
         }
 
@@ -1123,25 +1591,26 @@
           this.state = "failed";
           this.squash.velocityX = 0;
           this.squash.velocityY = 0;
-          this.overlayTitle.textContent = "Level Failed";
-          this.overlayText.textContent = "Retry";
-          this.overlayNextBtn.textContent = "Next Level";
+          this.overlayTitle.textContent = "挑战失败";
+          this.overlayText.textContent = "调整角度再试一次";
+          this.overlayNextBtn.textContent = "下一关";
           this.overlayNextBtn.classList.add("hidden");
           this.overlay.classList.remove("hidden");
         }
 
         syncUI() {
+          if (!this.monsters) return;
           const total = this.monsters.length || 1;
           const alive = this.monsters.filter((monster) => monster.isAlive).length;
-          this.levelStat.textContent = `Level ${this.levelIndex + 1}`;
-          this.shotsStat.textContent = `Shots ${this.shotsLeft}`;
-          this.monsterStat.textContent = `Monsters ${alive}/${total}`;
+          this.levelStat.textContent = `第 ${this.levelIndex + 1} 关`;
+          this.shotsStat.textContent = `次数 ${this.shotsLeft}`;
+          this.monsterStat.textContent = `怪物 ${alive}/${total}`;
 
           if (this.aiming) {
             const launch = this.getLaunchVector();
             this.powerMeter.classList.remove("hidden");
             this.powerFill.style.width = `${Math.round(launch.percent * 100)}%`;
-            this.powerText.textContent = `Power ${Math.round(launch.percent * 100)}%`;
+            this.powerText.textContent = `力度 ${Math.round(launch.percent * 100)}%`;
           } else {
             this.powerMeter.classList.add("hidden");
           }
