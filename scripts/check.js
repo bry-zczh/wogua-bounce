@@ -5,6 +5,12 @@ const zlib = require("zlib");
 const root = path.resolve(__dirname, "..");
 const indexPath = path.join(root, "index.html");
 const assetPath = path.join(root, "assets", "wogua.png");
+const manifestPath = path.join(root, "manifest.webmanifest");
+const serviceWorkerPath = path.join(root, "sw.js");
+const iconPaths = [
+  { path: path.join(root, "assets", "icon-192.png"), width: 192, height: 192 },
+  { path: path.join(root, "assets", "icon-512.png"), width: 512, height: 512 }
+];
 const html = fs.readFileSync(indexPath, "utf8");
 const expectedLevels = 10;
 
@@ -47,6 +53,8 @@ const requiredUiTokens = [
   "renderCodex()",
   "CODEX_SECTIONS",
   "SKILLS",
+  "manifest.webmanifest",
+  "serviceWorker.register",
   "spawnSplitSquashes",
   "drawRouteHint"
 ];
@@ -88,6 +96,36 @@ if (routeHintCount < 5) {
   throw new Error(`Expected route hints for Levels 6-10, found ${routeHintCount}`);
 }
 
+if (html.includes("{ x: 112, y: 596, width: 256, height: 24")) {
+  throw new Error("Level 7 bottom spring blocks the route hint");
+}
+
+if (!fs.existsSync(manifestPath)) {
+  throw new Error("Missing manifest.webmanifest");
+}
+
+if (!fs.existsSync(serviceWorkerPath)) {
+  throw new Error("Missing sw.js");
+}
+
+const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+if (manifest.display !== "standalone" || manifest.orientation !== "portrait") {
+  throw new Error("PWA manifest must be standalone portrait");
+}
+
+for (const size of ["192x192", "512x512"]) {
+  if (!manifest.icons.some((icon) => icon.sizes === size)) {
+    throw new Error(`Missing PWA icon ${size}`);
+  }
+}
+
+const serviceWorker = fs.readFileSync(serviceWorkerPath, "utf8");
+for (const token of ["install", "activate", "fetch", "CACHE_NAME"]) {
+  if (!serviceWorker.includes(token)) {
+    throw new Error(`Missing service worker token ${token}`);
+  }
+}
+
 const forbiddenSpriteTransforms = [
   "createTransparentPixelSprite",
   "getImageData",
@@ -105,6 +143,12 @@ if (!fs.existsSync(assetPath)) {
   throw new Error("Missing assets/wogua.png");
 }
 
+for (const icon of iconPaths) {
+  if (!fs.existsSync(icon.path)) {
+    throw new Error(`Missing ${path.relative(root, icon.path)}`);
+  }
+}
+
 const asset = fs.readFileSync(assetPath);
 const pngWidth = asset.readUInt32BE(16);
 const pngHeight = asset.readUInt32BE(20);
@@ -120,6 +164,16 @@ if (pngBitDepth !== 8 || pngColorType !== 6) {
 
 if (!html.includes("this.squashSprite = image")) {
   throw new Error("Wogua sprite must use the original image object directly");
+}
+
+for (const icon of iconPaths) {
+  const buffer = fs.readFileSync(icon.path);
+  const width = buffer.readUInt32BE(16);
+  const height = buffer.readUInt32BE(20);
+  const colorType = buffer[25];
+  if (width !== icon.width || height !== icon.height || colorType !== 6) {
+    throw new Error(`Invalid PWA icon ${path.relative(root, icon.path)}`);
+  }
 }
 
 function decodeRgbaPng(buffer) {

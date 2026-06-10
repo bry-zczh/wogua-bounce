@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link rel="icon" href="assets/wogua.png?v=transparent-bg">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#cfe477">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="窝瓜弹弹乐">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>窝瓜弹弹乐</title>
   <style>
     :root {
@@ -783,7 +789,7 @@
           title: "第7关 双弹簧回廊",
           mechanics: ["弹簧墙", "头盔怪", "多目标"],
           note: "左右弹簧会把窝瓜送回中路，适合连续补刀。",
-          hint: "先打右侧弹簧切进上半场，再利用左侧弹簧回弹；头盔怪留到第二发或第三发补掉。",
+          hint: "第一发直接切右侧弹簧进上半场，再借左侧弹簧回弹；头盔怪留到第二发或第三发补掉。",
           route: [
             { x: 240, y: 735 },
             { x: 430, y: 340 },
@@ -806,8 +812,7 @@
           bombs: [],
           springs: [
             { x: 24, y: 220, width: 26, height: 188, angle: 0, bounceMultiplier: 1.42 },
-            { x: 430, y: 296, width: 26, height: 188, angle: 0, bounceMultiplier: 1.42 },
-            { x: 112, y: 596, width: 256, height: 24, angle: 0, bounceMultiplier: 1.32 }
+            { x: 430, y: 296, width: 26, height: 188, angle: 0, bounceMultiplier: 1.42 }
           ]
         },
         {
@@ -1802,16 +1807,16 @@
           if (level <= 0) return;
 
           this.crates = this.crates.slice(level);
-          const springWidth = level === 1 ? 150 : 210;
-          const springX = (WORLD_WIDTH - springWidth) / 2;
+          const springWidth = level === 1 ? 132 : 176;
+          const springX = 42;
           this.springs.push(new Spring({
             x: springX,
-            y: 642,
+            y: 640,
             width: springWidth,
             height: 22,
             bounceMultiplier: 1.16 + level * 0.12
           }));
-          this.addFloatingText("地形改造", WORLD_WIDTH / 2, 630, "#4ca3dd");
+          this.addFloatingText("地形改造", springX + springWidth / 2, 628, "#4ca3dd");
         }
 
         nextLevel() {
@@ -2136,6 +2141,7 @@
           this.hintVisible = !this.hintVisible;
           this.hintBox.textContent = hint || "这一关可以多利用墙面反弹，瞄准线越长力度越大。";
           this.hintBox.classList.toggle("hidden", !this.hintVisible);
+          this.hintBtn.textContent = this.hintVisible ? "收起" : "提示";
         }
 
         syncUI() {
@@ -2326,6 +2332,11 @@
       }
 
       new Game();
+      if ("serviceWorker" in navigator && location.protocol !== "file:") {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(() => {});
+        });
+      }
     })();
   </script>
 </body>
