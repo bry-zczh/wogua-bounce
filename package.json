@@ -5,7 +5,11 @@
   "description": "A small Canvas slingshot monster-clearing game.",
   "scripts": {
     "start": "python3 -m http.server 4173",
-    "check": "node scripts/check.js"
+    "check": "node scripts/check.js",
+    "build": "node scripts/build-web.js",
+    "mobile:sync": "npm run build && npx cap sync",
+    "android:sync": "npm run build && npx cap sync android",
+    "ios:sync": "npm run build && npx cap sync ios"
   },
   "keywords": [
     "canvas",
@@ -13,5 +17,11 @@
     "wogua",
     "slingshot"
   ],
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "^8.4.0"
+  }
 }

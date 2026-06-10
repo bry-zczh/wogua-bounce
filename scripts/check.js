@@ -7,11 +7,16 @@ const indexPath = path.join(root, "index.html");
 const assetPath = path.join(root, "assets", "wogua.png");
 const manifestPath = path.join(root, "manifest.webmanifest");
 const serviceWorkerPath = path.join(root, "sw.js");
+const capacitorConfigPath = path.join(root, "capacitor.config.json");
+const androidManifestPath = path.join(root, "android", "app", "src", "main", "AndroidManifest.xml");
+const iosInfoPlistPath = path.join(root, "ios", "App", "App", "Info.plist");
+const apkWorkflowPath = path.join(root, "docs", "build-apk-workflow.yml");
 const iconPaths = [
   { path: path.join(root, "assets", "icon-192.png"), width: 192, height: 192 },
   { path: path.join(root, "assets", "icon-512.png"), width: 512, height: 512 }
 ];
 const html = fs.readFileSync(indexPath, "utf8");
+const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 const expectedLevels = 10;
 
 const scriptMatches = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
@@ -108,6 +113,12 @@ if (!fs.existsSync(serviceWorkerPath)) {
   throw new Error("Missing sw.js");
 }
 
+for (const file of [capacitorConfigPath, androidManifestPath, iosInfoPlistPath, apkWorkflowPath]) {
+  if (!fs.existsSync(file)) {
+    throw new Error(`Missing ${path.relative(root, file)}`);
+  }
+}
+
 const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 if (manifest.display !== "standalone" || manifest.orientation !== "portrait") {
   throw new Error("PWA manifest must be standalone portrait");
@@ -123,6 +134,38 @@ const serviceWorker = fs.readFileSync(serviceWorkerPath, "utf8");
 for (const token of ["install", "activate", "fetch", "CACHE_NAME"]) {
   if (!serviceWorker.includes(token)) {
     throw new Error(`Missing service worker token ${token}`);
+  }
+}
+
+const capacitorConfig = JSON.parse(fs.readFileSync(capacitorConfigPath, "utf8"));
+if (capacitorConfig.appName !== "Angry Melon" || capacitorConfig.appId !== "com.bryzczh.angrymelon") {
+  throw new Error("Capacitor app metadata must be Angry Melon");
+}
+
+if (capacitorConfig.webDir !== "www") {
+  throw new Error("Capacitor webDir must be www");
+}
+
+for (const script of ["build", "mobile:sync", "android:sync", "ios:sync"]) {
+  if (!pkg.scripts?.[script]) {
+    throw new Error(`Missing npm script ${script}`);
+  }
+}
+
+const androidManifest = fs.readFileSync(androidManifestPath, "utf8");
+if (!androidManifest.includes('android:screenOrientation="portrait"')) {
+  throw new Error("Android app must be locked to portrait");
+}
+
+const iosInfoPlist = fs.readFileSync(iosInfoPlistPath, "utf8");
+if (!iosInfoPlist.includes("Angry Melon") || iosInfoPlist.includes("UIInterfaceOrientationLandscape")) {
+  throw new Error("iOS app metadata must be Angry Melon portrait only");
+}
+
+const apkWorkflow = fs.readFileSync(apkWorkflowPath, "utf8");
+for (const token of ["assembleDebug", "angry-melon-debug-apk", "actions/upload-artifact"]) {
+  if (!apkWorkflow.includes(token)) {
+    throw new Error(`Missing APK workflow token ${token}`);
   }
 }
 

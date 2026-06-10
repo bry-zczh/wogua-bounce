@@ -40,6 +40,47 @@ npm run start
 
 安装后会像普通 App 一样从桌面图标启动。若需要真正的 `.apk` 安装包，需要再接入 Android 打包流程。
 
+## 移动端 App
+
+项目已接入 Capacitor，App 名称为 `Angry Melon`，包名为 `com.bryzczh.angrymelon`。
+
+### Android APK
+
+仓库包含 GitHub Actions 构建模板：`docs/build-apk-workflow.yml`。如果需要自动构建 APK，需要将它复制到 `.github/workflows/build-apk.yml` 并确保 GitHub token 有 `workflow` 权限。启用后每次推送到 `main` 会自动构建 debug APK，可在 GitHub 仓库的 Actions 页面下载 `angry-melon-debug-apk` artifact。
+
+本地构建需要安装 Android Studio、Android SDK 和 JDK 21：
+
+```bash
+npm ci
+npm run android:sync
+cd android
+./gradlew assembleDebug
+```
+
+生成文件在 `android/app/build/outputs/apk/debug/app-debug.apk`。
+
+### iPhone / iOS
+
+iPhone 不能安装 APK。iPhone 版本需要用 iOS 工程构建：
+
+```bash
+npm ci
+npm run ios:sync
+npx cap open ios
+```
+
+然后在 Xcode 里选择开发团队，连接 iPhone 真机运行，或通过 Apple Developer/TestFlight 分发。没有 Apple 签名环境时，无法直接生成可安装的 `.ipa`。
+
+### 仓库改名
+
+如果把远程仓库改名为 `Angry Melon`，GitHub 仓库名建议使用 `angry-melon` 或 `Angry-Melon` 这种无空格形式。改名后旧仓库地址通常会跳转，但建议同步更新本地远端：
+
+```bash
+git remote set-url origin https://github.com/bry-zczh/angry-melon.git
+```
+
+如果开启 GitHub Pages，访问地址也会从 `https://bry-zczh.github.io/wogua-bounce/` 变成新仓库名对应的地址。
+
 ## 检查
 
 ```bash

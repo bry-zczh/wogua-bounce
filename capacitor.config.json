@@ -1,0 +1,11 @@
+{
+  "appId": "com.bryzczh.angrymelon",
+  "appName": "Angry Melon",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

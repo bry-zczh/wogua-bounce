@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Angry Melon</string>
+    <string name="title_activity_main">Angry Melon</string>
+    <string name="package_name">com.bryzczh.angrymelon</string>
+    <string name="custom_url_scheme">com.bryzczh.angrymelon</string>
+</resources>

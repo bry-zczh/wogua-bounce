@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <link rel="icon" href="assets/wogua.png?v=transparent-bg">
   <link rel="apple-touch-icon" href="assets/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -39,14 +39,19 @@
 
     body {
       min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
       place-items: center;
-      padding: 10px;
+      padding:
+        max(10px, env(safe-area-inset-top))
+        max(10px, env(safe-area-inset-right))
+        max(10px, env(safe-area-inset-bottom))
+        max(10px, env(safe-area-inset-left));
     }
 
     .game-shell {
       position: relative;
-      width: min(480px, calc(100vw - 20px), calc((100vh - 20px) * 9 / 16));
+      width: min(480px, calc(100vw - 20px), calc((100dvh - 20px) * 9 / 16));
       aspect-ratio: 9 / 16;
       overflow: hidden;
       background: #b6e7dc;
