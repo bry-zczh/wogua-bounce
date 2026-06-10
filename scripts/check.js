@@ -52,17 +52,41 @@ for (const token of requiredUiTokens) {
 }
 
 const levelCount = (html.match(/name: "Level /g) || []).length;
-if (levelCount !== 5) {
-  throw new Error(`Expected 5 levels, found ${levelCount}`);
+const mechanismCount = (html.match(/mechanics: \[/g) || []).length;
+if (levelCount !== 6) {
+  throw new Error(`Expected 6 levels, found ${levelCount}`);
 }
 
-const mechanismCount = (html.match(/mechanics: \[/g) || []).length;
-if (mechanismCount !== 5) {
-  throw new Error(`Expected 5 level mechanism summaries, found ${mechanismCount}`);
+if (mechanismCount !== 6) {
+  throw new Error(`Expected 6 level mechanism summaries, found ${mechanismCount}`);
+}
+
+const forbiddenSpriteTransforms = [
+  "createTransparentPixelSprite",
+  "getImageData",
+  "putImageData",
+  "mix-blend-mode"
+];
+
+for (const token of forbiddenSpriteTransforms) {
+  if (html.includes(token)) {
+    throw new Error(`Forbidden wogua image transform found: ${token}`);
+  }
 }
 
 if (!fs.existsSync(assetPath)) {
   throw new Error("Missing assets/wogua.png");
+}
+
+const asset = fs.readFileSync(assetPath);
+const pngWidth = asset.readUInt32BE(16);
+const pngHeight = asset.readUInt32BE(20);
+if (pngWidth !== 90 || pngHeight !== 94) {
+  throw new Error(`Expected original wogua image to be 90x94, found ${pngWidth}x${pngHeight}`);
+}
+
+if (!html.includes("this.squashSprite = image")) {
+  throw new Error("Wogua sprite must use the original image object directly");
 }
 
 console.log("Static checks passed.");
