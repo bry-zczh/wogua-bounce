@@ -28,11 +28,15 @@ npm run start
 
 ## 手机安装
 
-目前仓库没有独立 APK 文件。推荐使用 PWA 方式安装：
+目前仓库没有独立 APK 文件。推荐使用 PWA 方式安装，但 PWA 需要先部署到 HTTPS 站点：
 
-1. 用手机浏览器打开线上地址：`https://bry-zczh.github.io/wogua-bounce/`。
+1. 将项目部署到 GitHub Pages、Vercel、Netlify 或其他 HTTPS 静态网站。
 2. Android Chrome：点右上角菜单，选择“添加到主屏幕”或“安装应用”。
 3. iPhone Safari：点分享按钮，选择“添加到主屏幕”。
+
+如果仓库改为 public 并开启 GitHub Pages，默认地址会是 `https://bry-zczh.github.io/wogua-bounce/`。当前仓库是 private，当前 GitHub 计划不支持为这个私有仓库开启 Pages。
+
+本地手机预览可以让手机和电脑连接同一个 Wi-Fi，在电脑上运行 `npm run start`，然后用手机打开 `http://电脑局域网IP:4173`。这种方式适合测试，但不能作为正式安装入口。
 
 安装后会像普通 App 一样从桌面图标启动。若需要真正的 `.apk` 安装包，需要再接入 Android 打包流程。
 
