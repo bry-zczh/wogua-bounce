@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const zlib = require("zlib");
 
 const root = path.resolve(__dirname, "..");
 const indexPath = path.join(root, "index.html");
@@ -81,12 +82,91 @@ if (!fs.existsSync(assetPath)) {
 const asset = fs.readFileSync(assetPath);
 const pngWidth = asset.readUInt32BE(16);
 const pngHeight = asset.readUInt32BE(20);
+const pngBitDepth = asset[24];
+const pngColorType = asset[25];
 if (pngWidth !== 90 || pngHeight !== 94) {
-  throw new Error(`Expected original wogua image to be 90x94, found ${pngWidth}x${pngHeight}`);
+  throw new Error(`Expected wogua image to be 90x94, found ${pngWidth}x${pngHeight}`);
+}
+
+if (pngBitDepth !== 8 || pngColorType !== 6) {
+  throw new Error("Wogua image must be an 8-bit RGBA PNG with transparent background");
 }
 
 if (!html.includes("this.squashSprite = image")) {
   throw new Error("Wogua sprite must use the original image object directly");
+}
+
+function decodeRgbaPng(buffer) {
+  let offset = 8;
+  const idat = [];
+
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.toString("ascii", offset + 4, offset + 8);
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+    if (type === "IDAT") idat.push(buffer.subarray(dataStart, dataEnd));
+    if (type === "IEND") break;
+    offset = dataEnd + 4;
+  }
+
+  const inflated = zlib.inflateSync(Buffer.concat(idat));
+  const stride = pngWidth * 4;
+  const pixels = Buffer.alloc(pngHeight * stride);
+  let inputOffset = 0;
+
+  for (let y = 0; y < pngHeight; y += 1) {
+    const filter = inflated[inputOffset];
+    inputOffset += 1;
+    const row = inflated.subarray(inputOffset, inputOffset + stride);
+    inputOffset += stride;
+    const outOffset = y * stride;
+    const prevOffset = (y - 1) * stride;
+
+    for (let x = 0; x < stride; x += 1) {
+      const left = x >= 4 ? pixels[outOffset + x - 4] : 0;
+      const up = y > 0 ? pixels[prevOffset + x] : 0;
+      const upLeft = y > 0 && x >= 4 ? pixels[prevOffset + x - 4] : 0;
+      let value = row[x];
+
+      if (filter === 1) value += left;
+      else if (filter === 2) value += up;
+      else if (filter === 3) value += Math.floor((left + up) / 2);
+      else if (filter === 4) {
+        const p = left + up - upLeft;
+        const pa = Math.abs(p - left);
+        const pb = Math.abs(p - up);
+        const pc = Math.abs(p - upLeft);
+        value += pa <= pb && pa <= pc ? left : pb <= pc ? up : upLeft;
+      } else if (filter !== 0) {
+        throw new Error(`Unsupported PNG filter ${filter}`);
+      }
+
+      pixels[outOffset + x] = value & 255;
+    }
+  }
+
+  return pixels;
+}
+
+function alphaAt(pixels, x, y) {
+  return pixels[(y * pngWidth + x) * 4 + 3];
+}
+
+const pixels = decodeRgbaPng(asset);
+const cornerAlphas = [
+  alphaAt(pixels, 0, 0),
+  alphaAt(pixels, pngWidth - 1, 0),
+  alphaAt(pixels, 0, pngHeight - 1),
+  alphaAt(pixels, pngWidth - 1, pngHeight - 1)
+];
+
+if (cornerAlphas.some((alpha) => alpha !== 0)) {
+  throw new Error(`Wogua background corners must be transparent, found alphas ${cornerAlphas.join(",")}`);
+}
+
+if (alphaAt(pixels, 45, 54) !== 255) {
+  throw new Error("Wogua green body must remain fully opaque");
 }
 
 console.log("Static checks passed.");
