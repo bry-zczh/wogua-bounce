@@ -6,6 +6,7 @@ const root = path.resolve(__dirname, "..");
 const indexPath = path.join(root, "index.html");
 const assetPath = path.join(root, "assets", "wogua.png");
 const html = fs.readFileSync(indexPath, "utf8");
+const expectedLevels = 10;
 
 const scriptMatches = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 if (scriptMatches.length === 0) {
@@ -64,16 +65,27 @@ for (const token of requiredUiTokens) {
 
 const levelCount = (html.match(/name: "Level /g) || []).length;
 const mechanismCount = (html.match(/mechanics: \[/g) || []).length;
-if (levelCount !== 6) {
-  throw new Error(`Expected 6 levels, found ${levelCount}`);
+if (levelCount !== expectedLevels) {
+  throw new Error(`Expected ${expectedLevels} levels, found ${levelCount}`);
 }
 
-if (mechanismCount !== 6) {
-  throw new Error(`Expected 6 level mechanism summaries, found ${mechanismCount}`);
+if (mechanismCount !== expectedLevels) {
+  throw new Error(`Expected ${expectedLevels} level mechanism summaries, found ${mechanismCount}`);
 }
 
 if (!html.includes('name: "Level 6"') || !html.includes("hint:")) {
   throw new Error("Level 6 must include route hint data");
+}
+
+for (let level = 7; level <= expectedLevels; level += 1) {
+  if (!html.includes(`name: "Level ${level}"`)) {
+    throw new Error(`Missing Level ${level}`);
+  }
+}
+
+const routeHintCount = (html.match(/route: \[/g) || []).length;
+if (routeHintCount < 5) {
+  throw new Error(`Expected route hints for Levels 6-10, found ${routeHintCount}`);
 }
 
 const forbiddenSpriteTransforms = [
