@@ -345,7 +345,7 @@
 
     .codex-tabs {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 7px;
       margin: 0 0 12px;
     }
@@ -402,6 +402,82 @@
       background: #f2c94c;
     }
 
+    .skill-summary {
+      margin: 0 0 12px;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .skill-list {
+      display: grid;
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+
+    .skill-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      border: 3px solid #172015;
+      background: var(--paper);
+      padding: 10px;
+    }
+
+    .skill-card strong,
+    .skill-card span {
+      display: block;
+    }
+
+    .skill-card strong {
+      margin-bottom: 5px;
+      font-size: 15px;
+      line-height: 1.2;
+    }
+
+    .skill-card span {
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .skill-stepper {
+      display: grid;
+      grid-template-columns: 32px 32px 32px;
+      gap: 5px;
+      align-items: center;
+    }
+
+    .skill-stepper button {
+      min-height: 32px;
+      padding: 0;
+      font-size: 18px;
+    }
+
+    .skill-level {
+      display: grid;
+      min-height: 32px;
+      place-items: center;
+      border: 3px solid #172015;
+      background: #cfe477;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .hint-box {
+      max-width: 292px;
+      border: 3px solid #172015;
+      background: var(--panel);
+      color: var(--ink);
+      box-shadow: 0 4px 0 #172015;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.35;
+      pointer-events: none;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -442,6 +518,10 @@
       .level-card {
         min-height: 102px;
       }
+
+      .skill-card {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -459,6 +539,7 @@
         <div class="menu-actions">
           <button id="startBtn" type="button">开始游戏</button>
           <button id="levelSelectBtn" type="button">选择关卡</button>
+          <button id="skillsBtn" type="button">技能加点</button>
           <button id="codexBtn" type="button">地形怪物图鉴</button>
         </div>
       </div>
@@ -485,6 +566,20 @@
       </div>
     </section>
 
+    <section class="screen hidden" id="skillScreen" aria-label="技能加点">
+      <div class="screen-panel">
+        <div class="screen-top">
+          <h2>技能加点</h2>
+          <button class="backToMenuBtn" type="button">返回</button>
+        </div>
+        <p class="skill-summary" id="skillSummary">技能点 0/3</p>
+        <div class="skill-list" id="skillList"></div>
+        <div class="screen-actions">
+          <button id="resetSkillsBtn" type="button">重置技能</button>
+        </div>
+      </div>
+    </section>
+
     <section class="hud" aria-label="游戏状态">
       <div class="top-row">
         <div class="stats">
@@ -494,12 +589,14 @@
         </div>
         <div class="buttons">
           <button id="menuBtn" type="button">菜单</button>
+          <button id="hintBtn" type="button">提示</button>
           <button id="restartBtn" type="button">重玩</button>
           <button id="nextBtn" class="hidden" type="button">下一关</button>
         </div>
       </div>
 
       <div class="bottom-row">
+        <div class="hint-box hidden" id="hintBox"></div>
         <div class="power hidden" id="powerMeter">
           <div id="powerText">Power 0%</div>
           <div class="power-track"><div class="power-fill" id="powerFill"></div></div>
@@ -531,6 +628,29 @@
       const FRICTION = 0.985;
       const STOP_THRESHOLD = 20;
       const MAX_SPEED = 1200;
+      const TOTAL_SKILL_POINTS = 3;
+      const DEFAULT_SKILLS = { bounce: 0, terrain: 0, split: 0 };
+
+      const SKILLS = [
+        {
+          id: "bounce",
+          name: "弹力训练",
+          max: 2,
+          text: "每级开局 +1 次发射，容错更高。"
+        },
+        {
+          id: "terrain",
+          name: "地形改造",
+          max: 2,
+          text: "每级移除 1 个木箱，并在场地低处加辅助弹簧。"
+        },
+        {
+          id: "split",
+          name: "分裂窝瓜",
+          max: 2,
+          text: "发射时额外分裂出小窝瓜，帮你补刀和触发机关。"
+        }
+      ];
 
       const LEVELS = [
         {
@@ -627,28 +747,35 @@
           name: "Level 6",
           title: "第6关 机关总动员",
           mechanics: ["木箱", "炸弹桶", "弹簧墙", "头盔怪"],
-          note: "先借木箱和弹簧改线，再引爆炸弹桶清场。",
-          shots: 5,
+          note: "优先引爆炸弹桶，再用底部弹簧补刀。",
+          hint: "先瞄右下炸弹桶，爆炸会带走右侧怪物；第二发走左墙或底部弹簧，补头盔怪和左上怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 360, y: 486 },
+            { x: 430, y: 300 },
+            { x: 236, y: 258 },
+            { x: 168, y: 306 }
+          ],
+          shots: 6,
           start: { x: 240, y: 735 },
           monsters: [
-            { x: 84, y: 188, type: "normal" },
-            { x: 176, y: 308, type: "helmet" },
-            { x: 312, y: 190, type: "normal" },
-            { x: 392, y: 344, type: "helmet" },
-            { x: 256, y: 448, type: "normal" }
+            { x: 96, y: 198, type: "normal" },
+            { x: 168, y: 306, type: "helmet" },
+            { x: 314, y: 208, type: "normal" },
+            { x: 380, y: 360, type: "normal" },
+            { x: 252, y: 444, type: "normal" }
           ],
           crates: [
-            { x: 134, y: 402, width: 64, height: 64 },
-            { x: 282, y: 300, width: 64, height: 64 }
+            { x: 132, y: 412, width: 58, height: 58 }
           ],
           bombs: [
-            { x: 238, y: 258, explosionRadius: 122 },
-            { x: 360, y: 496, explosionRadius: 112 }
+            { x: 236, y: 258, explosionRadius: 132 },
+            { x: 360, y: 486, explosionRadius: 126 }
           ],
           springs: [
             { x: 24, y: 255, width: 26, height: 170, angle: 0 },
             { x: 430, y: 170, width: 26, height: 190, angle: 0 },
-            { x: 118, y: 588, width: 244, height: 24, angle: 0, bounceMultiplier: 1.28 }
+            { x: 96, y: 590, width: 288, height: 24, angle: 0, bounceMultiplier: 1.42 }
           ]
         }
       ];
@@ -679,6 +806,15 @@
             icon: String(index + 1),
             name: level.title,
             text: `${level.mechanics.join(" / ")}。${level.note}`
+          }))
+        },
+        {
+          title: "技能",
+          iconClass: "level",
+          items: SKILLS.map((skill, index) => ({
+            icon: String(index + 1),
+            name: skill.name,
+            text: skill.text
           }))
         }
       ];
@@ -810,6 +946,56 @@
             ctx.drawImage(this.sprite, -width / 2, -height / 2);
           }
 
+          ctx.restore();
+        }
+      }
+
+      class MiniSquash {
+        constructor(x, y, vx, vy, sprite) {
+          this.x = x;
+          this.y = y;
+          this.radius = 18;
+          this.velocityX = vx;
+          this.velocityY = vy;
+          this.bounce = 0.8;
+          this.damage = 1;
+          this.sprite = sprite;
+          this.hitSquash = 0;
+          this.life = 4.4;
+          this.stopTimer = 0;
+          this.isAlive = true;
+        }
+
+        integrate(dt) {
+          if (!this.isAlive) return;
+          this.life -= dt;
+          this.x += this.velocityX * dt;
+          this.y += this.velocityY * dt;
+          const decay = Math.pow(FRICTION, dt * 60);
+          this.velocityX *= decay;
+          this.velocityY *= decay;
+          this.hitSquash = Math.max(0, this.hitSquash - dt * 5);
+
+          if (length(this.velocityX, this.velocityY) < STOP_THRESHOLD) {
+            this.stopTimer += dt;
+          } else {
+            this.stopTimer = 0;
+          }
+
+          if (this.life <= 0 || this.stopTimer > 0.55) {
+            this.isAlive = false;
+          }
+        }
+
+        draw(ctx) {
+          if (!this.isAlive || !this.sprite) return;
+          const width = (this.sprite.naturalWidth || this.sprite.width) * 0.58;
+          const height = (this.sprite.naturalHeight || this.sprite.height) * 0.58;
+          ctx.save();
+          ctx.globalAlpha = clamp(this.life / 0.7, 0.35, 0.86);
+          ctx.translate(this.x, this.y);
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(this.sprite, -width / 2, -height / 2, width, height);
           ctx.restore();
         }
       }
@@ -1095,15 +1281,22 @@
           this.codexScreen = document.getElementById("codexScreen");
           this.startBtn = document.getElementById("startBtn");
           this.levelSelectBtn = document.getElementById("levelSelectBtn");
+          this.skillsBtn = document.getElementById("skillsBtn");
           this.codexBtn = document.getElementById("codexBtn");
           this.levelGrid = document.getElementById("levelGrid");
           this.codexTabs = document.getElementById("codexTabs");
           this.codexContent = document.getElementById("codexContent");
+          this.skillScreen = document.getElementById("skillScreen");
+          this.skillSummary = document.getElementById("skillSummary");
+          this.skillList = document.getElementById("skillList");
+          this.resetSkillsBtn = document.getElementById("resetSkillsBtn");
           this.backToMenuBtns = document.querySelectorAll(".backToMenuBtn");
           this.levelStat = document.getElementById("levelStat");
           this.shotsStat = document.getElementById("shotsStat");
           this.monsterStat = document.getElementById("monsterStat");
           this.menuBtn = document.getElementById("menuBtn");
+          this.hintBtn = document.getElementById("hintBtn");
+          this.hintBox = document.getElementById("hintBox");
           this.restartBtn = document.getElementById("restartBtn");
           this.nextBtn = document.getElementById("nextBtn");
           this.powerMeter = document.getElementById("powerMeter");
@@ -1128,11 +1321,15 @@
           this.lastTime = performance.now();
           this.squashSprite = null;
           this.activeCodexIndex = 0;
+          this.skills = this.loadSkills();
+          this.miniSquashes = [];
+          this.hintVisible = false;
 
           this.loadSquashSprite();
           this.bindEvents();
           this.renderLevelSelect();
           this.renderCodex();
+          this.renderSkillScreen();
           this.loadLevel(0, { play: false });
           this.showMainMenu();
           requestAnimationFrame((time) => this.loop(time));
@@ -1156,16 +1353,122 @@
 
           this.startBtn.addEventListener("click", () => this.startLevel(0));
           this.levelSelectBtn.addEventListener("click", () => this.showLevelSelect());
+          this.skillsBtn.addEventListener("click", () => this.showSkills());
           this.codexBtn.addEventListener("click", () => this.showCodex());
           for (const button of this.backToMenuBtns) {
             button.addEventListener("click", () => this.showMainMenu());
           }
           this.menuBtn.addEventListener("click", () => this.showMainMenu());
+          this.hintBtn.addEventListener("click", () => this.toggleHint());
           this.restartBtn.addEventListener("click", () => this.loadLevel(this.levelIndex));
           this.retryBtn.addEventListener("click", () => this.loadLevel(this.levelIndex));
           this.overlayMenuBtn.addEventListener("click", () => this.showMainMenu());
           this.nextBtn.addEventListener("click", () => this.nextLevel());
           this.overlayNextBtn.addEventListener("click", () => this.nextLevel());
+          this.resetSkillsBtn.addEventListener("click", () => {
+            this.skills = { ...DEFAULT_SKILLS };
+            this.saveSkills();
+            this.renderSkillScreen();
+          });
+        }
+
+        loadSkills() {
+          try {
+            const raw = localStorage.getItem("woguaSkills");
+            if (!raw) return { ...DEFAULT_SKILLS };
+            const parsed = JSON.parse(raw);
+            const skills = { ...DEFAULT_SKILLS };
+            for (const skill of SKILLS) {
+              skills[skill.id] = clamp(Number(parsed[skill.id]) || 0, 0, skill.max);
+            }
+            return this.normalizeSkills(skills);
+          } catch {
+            return { ...DEFAULT_SKILLS };
+          }
+        }
+
+        normalizeSkills(skills) {
+          const normalized = { ...DEFAULT_SKILLS };
+          for (const skill of SKILLS) {
+            normalized[skill.id] = clamp(Number(skills[skill.id]) || 0, 0, skill.max);
+          }
+
+          while (this.getSkillPointsUsed(normalized) > TOTAL_SKILL_POINTS) {
+            for (let i = SKILLS.length - 1; i >= 0 && this.getSkillPointsUsed(normalized) > TOTAL_SKILL_POINTS; i -= 1) {
+              const id = SKILLS[i].id;
+              normalized[id] = Math.max(0, normalized[id] - 1);
+            }
+          }
+
+          return normalized;
+        }
+
+        saveSkills() {
+          try {
+            localStorage.setItem("woguaSkills", JSON.stringify(this.skills));
+          } catch {
+            // Local storage can be unavailable in private browser contexts.
+          }
+        }
+
+        getSkillPointsUsed(skills = this.skills) {
+          return SKILLS.reduce((sum, skill) => sum + (Number(skills[skill.id]) || 0), 0);
+        }
+
+        skillLevel(id) {
+          return Number(this.skills[id]) || 0;
+        }
+
+        renderSkillScreen() {
+          this.skillList.textContent = "";
+          const used = this.getSkillPointsUsed();
+          this.skillSummary.textContent = `技能点 ${used}/${TOTAL_SKILL_POINTS}，加点会影响所有关卡。`;
+
+          for (const skill of SKILLS) {
+            const level = this.skillLevel(skill.id);
+            const card = document.createElement("article");
+            card.className = "skill-card";
+
+            const body = document.createElement("div");
+            const name = document.createElement("strong");
+            name.textContent = skill.name;
+            const text = document.createElement("span");
+            text.textContent = skill.text;
+            body.append(name, text);
+
+            const stepper = document.createElement("div");
+            stepper.className = "skill-stepper";
+
+            const minus = document.createElement("button");
+            minus.type = "button";
+            minus.textContent = "-";
+            minus.disabled = level <= 0;
+            minus.addEventListener("click", () => this.adjustSkill(skill.id, -1));
+
+            const value = document.createElement("div");
+            value.className = "skill-level";
+            value.textContent = `${level}/${skill.max}`;
+
+            const plus = document.createElement("button");
+            plus.type = "button";
+            plus.textContent = "+";
+            plus.disabled = level >= skill.max || used >= TOTAL_SKILL_POINTS;
+            plus.addEventListener("click", () => this.adjustSkill(skill.id, 1));
+
+            stepper.append(minus, value, plus);
+            card.append(body, stepper);
+            this.skillList.append(card);
+          }
+        }
+
+        adjustSkill(id, delta) {
+          const skill = SKILLS.find((item) => item.id === id);
+          if (!skill) return;
+          const next = clamp(this.skillLevel(id) + delta, 0, skill.max);
+          if (delta > 0 && this.getSkillPointsUsed() >= TOTAL_SKILL_POINTS) return;
+          this.skills[id] = next;
+          this.saveSkills();
+          this.renderSkillScreen();
         }
 
         renderLevelSelect() {
@@ -1250,12 +1553,15 @@
           this.mainMenu.classList.toggle("hidden", screen !== "menu");
           this.levelSelect.classList.toggle("hidden", screen !== "levels");
           this.codexScreen.classList.toggle("hidden", screen !== "codex");
+          this.skillScreen.classList.toggle("hidden", screen !== "skills");
         }
 
         showMainMenu() {
           this.state = "menu";
           this.aiming = false;
           this.pointerId = null;
+          this.hintVisible = false;
+          this.miniSquashes = [];
           if (this.squash) {
             this.squash.velocityX = 0;
             this.squash.velocityY = 0;
@@ -1264,6 +1570,7 @@
           this.overlay.classList.add("hidden");
           this.nextBtn.classList.add("hidden");
           this.powerMeter.classList.add("hidden");
+          this.hintBox.classList.add("hidden");
           this.hud.classList.add("hidden");
           this.showScreen("menu");
           this.updateLevelCards();
@@ -1271,7 +1578,10 @@
 
         showLevelSelect() {
           this.state = "menu";
+          this.hintVisible = false;
+          this.miniSquashes = [];
           this.overlay.classList.add("hidden");
+          this.hintBox.classList.add("hidden");
           this.hud.classList.add("hidden");
           this.showScreen("levels");
           this.updateLevelCards();
@@ -1279,9 +1589,23 @@
 
         showCodex() {
           this.state = "menu";
+          this.hintVisible = false;
+          this.miniSquashes = [];
           this.overlay.classList.add("hidden");
+          this.hintBox.classList.add("hidden");
           this.hud.classList.add("hidden");
           this.showScreen("codex");
+        }
+
+        showSkills() {
+          this.state = "menu";
+          this.hintVisible = false;
+          this.miniSquashes = [];
+          this.overlay.classList.add("hidden");
+          this.hintBox.classList.add("hidden");
+          this.hud.classList.add("hidden");
+          this.renderSkillScreen();
+          this.showScreen("skills");
         }
 
         updateLevelCards() {
@@ -1298,9 +1622,11 @@
 
           this.levelIndex = safeIndex;
           this.state = play ? "playing" : "menu";
-          this.shotsLeft = level.shots;
+          this.hintVisible = false;
+          this.shotsLeft = level.shots + this.skillLevel("bounce");
           this.aiming = false;
           this.pointerId = null;
+          this.miniSquashes = [];
           this.particles = [];
           this.floatTexts = [];
           this.shake = 0;
@@ -1310,6 +1636,7 @@
           this.crates = level.crates.map((config) => new Crate(config));
           this.bombs = level.bombs.map((config) => new Bomb(config));
           this.springs = level.springs.map((config) => new Spring(config));
+          this.applySkillTerrain();
 
           this.overlay.classList.add("hidden");
           this.overlayNextBtn.classList.remove("hidden");
@@ -1317,8 +1644,26 @@
           this.nextBtn.classList.add("hidden");
           this.showScreen(null);
           this.hud.classList.toggle("hidden", !play);
+          this.hintBox.classList.add("hidden");
           this.updateLevelCards();
           this.syncUI();
+        }
+
+        applySkillTerrain() {
+          const level = this.skillLevel("terrain");
+          if (level <= 0) return;
+
+          this.crates = this.crates.slice(level);
+          const springWidth = level === 1 ? 150 : 210;
+          const springX = (WORLD_WIDTH - springWidth) / 2;
+          this.springs.push(new Spring({
+            x: springX,
+            y: 642,
+            width: springWidth,
+            height: 22,
+            bounceMultiplier: 1.16 + level * 0.12
+          }));
+          this.addFloatingText("地形改造", WORLD_WIDTH / 2, 630, "#4ca3dd");
         }
 
         nextLevel() {
@@ -1367,6 +1712,7 @@
 
           if (launch.power > 10 && this.shotsLeft > 0) {
             this.squash.launch(launch.vx, launch.vy);
+            this.spawnSplitSquashes(launch);
             this.shotsLeft -= 1;
             this.shake = Math.max(this.shake, 4);
             this.spawnBurst(this.squash.x, this.squash.y, "#f2c94c", 8);
@@ -1398,6 +1744,34 @@
           };
         }
 
+        rotateVector(vx, vy, angle) {
+          const cos = Math.cos(angle);
+          const sin = Math.sin(angle);
+          return {
+            vx: vx * cos - vy * sin,
+            vy: vx * sin + vy * cos
+          };
+        }
+
+        spawnSplitSquashes(launch) {
+          const level = this.skillLevel("split");
+          if (level <= 0 || !this.squashSprite) return;
+
+          const angles = level === 1 ? [-0.16, 0.16] : [-0.22, 0, 0.22];
+          for (const angle of angles) {
+            const rotated = this.rotateVector(launch.vx * 0.82, launch.vy * 0.82, angle);
+            this.miniSquashes.push(new MiniSquash(
+              this.squash.x + launch.nx * 18,
+              this.squash.y + launch.ny * 18,
+              rotated.vx,
+              rotated.vy,
+              this.squashSprite
+            ));
+          }
+
+          this.addFloatingText("分裂!", this.squash.x, this.squash.y - 48, "#f2c94c");
+        }
+
         loop(time) {
           const dt = Math.min(0.033, (time - this.lastTime) / 1000 || 0);
           this.lastTime = time;
@@ -1412,13 +1786,21 @@
           if (this.state === "playing") {
             this.squash.integrate(dt);
             if (this.squash.state === "moving") {
-              this.handleBounds();
-              this.handleCollisions();
+              this.handleBounds(this.squash);
+              this.handleCollisions(this.squash);
 
               if (this.squash.shouldStop(dt)) {
                 this.finishShot();
               }
             }
+
+            for (const mini of this.miniSquashes) {
+              mini.integrate(dt);
+              if (!mini.isAlive) continue;
+              this.handleBounds(mini);
+              this.handleCollisions(mini);
+            }
+            this.miniSquashes = this.miniSquashes.filter((mini) => mini.isAlive);
 
             if (this.monsters.every((monster) => !monster.isAlive)) {
               this.completeLevel();
@@ -1439,8 +1821,8 @@
           this.syncUI();
         }
 
-        handleBounds() {
-          const s = this.squash;
+        handleBounds(projectile) {
+          const s = projectile;
           const r = s.radius;
           let hit = false;
 
@@ -1467,8 +1849,8 @@
           if (hit) this.onBounce(s.x, s.y, "#fff8dc", 0.85);
         }
 
-        handleCollisions() {
-          const s = this.squash;
+        handleCollisions(projectile) {
+          const s = projectile;
 
           for (const monster of this.monsters) {
             if (!monster.isAlive) continue;
@@ -1483,7 +1865,7 @@
               const depth = minDist - dist;
               s.x += nx * depth;
               s.y += ny * depth;
-              this.reflectSquash(nx, ny, 0.92, 1);
+              this.reflectSquash(nx, ny, 0.92, 1, s);
               s.hitSquash = 1;
 
               if (monster.hit(s.damage, this)) {
@@ -1499,7 +1881,7 @@
 
             s.x += collision.nx * (collision.depth + 1);
             s.y += collision.ny * (collision.depth + 1);
-            this.reflectSquash(collision.nx, collision.ny, 0.82, 0.92);
+            this.reflectSquash(collision.nx, collision.ny, 0.82, 0.92, s);
             crate.hit(this);
             s.hitSquash = 1;
             this.shake = Math.max(this.shake, 7);
@@ -1515,7 +1897,7 @@
               const ny = dy / dist;
               s.x += nx * (s.radius + bomb.radius - dist + 1);
               s.y += ny * (s.radius + bomb.radius - dist + 1);
-              this.reflectSquash(nx, ny, 0.9, 1.05);
+              this.reflectSquash(nx, ny, 0.9, 1.05, s);
               bomb.explode(this);
               s.hitSquash = 1;
             }
@@ -1527,15 +1909,15 @@
 
             s.x += collision.nx * (collision.depth + 1);
             s.y += collision.ny * (collision.depth + 1);
-            this.reflectSquash(collision.nx, collision.ny, 0.98, spring.bounceMultiplier);
+            this.reflectSquash(collision.nx, collision.ny, 0.98, spring.bounceMultiplier, s);
             s.hitSquash = 1;
             this.shake = Math.max(this.shake, 6);
             this.spawnBurst(s.x, s.y, "#4ca3dd", 10);
           }
         }
 
-        reflectSquash(nx, ny, bounce, boost) {
-          const s = this.squash;
+        reflectSquash(nx, ny, bounce, boost, projectile = this.squash) {
+          const s = projectile;
           const dot = s.velocityX * nx + s.velocityY * ny;
           if (dot < 0) {
             s.velocityX = (s.velocityX - 2 * dot * nx) * bounce * boost;
@@ -1569,6 +1951,7 @@
           }
 
           this.squash.reset();
+          this.miniSquashes = [];
         }
 
         completeLevel() {
@@ -1576,6 +1959,7 @@
           this.state = "complete";
           this.squash.velocityX = 0;
           this.squash.velocityY = 0;
+          this.miniSquashes = [];
           this.nextBtn.classList.remove("hidden");
           this.overlayNextBtn.classList.remove("hidden");
           this.overlayTitle.textContent = this.levelIndex === LEVELS.length - 1 ? "全部通关" : "关卡完成";
@@ -1590,11 +1974,20 @@
           this.state = "failed";
           this.squash.velocityX = 0;
           this.squash.velocityY = 0;
+          this.miniSquashes = [];
           this.overlayTitle.textContent = "挑战失败";
           this.overlayText.textContent = "调整角度再试一次";
           this.overlayNextBtn.textContent = "下一关";
           this.overlayNextBtn.classList.add("hidden");
           this.overlay.classList.remove("hidden");
+        }
+
+        toggleHint() {
+          if (this.state !== "playing") return;
+          const hint = LEVELS[this.levelIndex].hint;
+          this.hintVisible = !this.hintVisible;
+          this.hintBox.textContent = hint || "这一关可以多利用墙面反弹，瞄准线越长力度越大。";
+          this.hintBox.classList.toggle("hidden", !this.hintVisible);
         }
 
         syncUI() {
@@ -1604,6 +1997,7 @@
           this.levelStat.textContent = `第 ${this.levelIndex + 1} 关`;
           this.shotsStat.textContent = `次数 ${this.shotsLeft}`;
           this.monsterStat.textContent = `怪物 ${alive}/${total}`;
+          this.hintBtn.textContent = this.hintVisible ? "收起" : "提示";
 
           if (this.aiming) {
             const launch = this.getLaunchVector();
@@ -1663,12 +2057,14 @@
           }
 
           this.drawBackground(ctx);
+          if (this.hintVisible) this.drawRouteHint(ctx);
           if (this.aiming) this.drawAim(ctx);
 
           for (const spring of this.springs) spring.draw(ctx);
           for (const crate of this.crates) crate.draw(ctx);
           for (const bomb of this.bombs) bomb.draw(ctx);
           for (const monster of this.monsters) monster.draw(ctx);
+          for (const mini of this.miniSquashes) mini.draw(ctx);
           this.squash.draw(ctx);
           for (const particle of this.particles) particle.draw(ctx);
           for (const text of this.floatTexts) text.draw(ctx);
@@ -1716,6 +2112,35 @@
           ctx.arc(x + size * 0.8, y + 6, size * 0.82, 0, Math.PI * 2);
           ctx.arc(x - size * 0.9, y + 9, size * 0.72, 0, Math.PI * 2);
           ctx.fill();
+        }
+
+        drawRouteHint(ctx) {
+          const route = LEVELS[this.levelIndex].route;
+          if (!route || route.length < 2) return;
+
+          ctx.save();
+          ctx.lineWidth = 5;
+          ctx.strokeStyle = "rgba(242, 201, 76, 0.95)";
+          ctx.setLineDash([12, 10]);
+          ctx.beginPath();
+          ctx.moveTo(route[0].x, route[0].y);
+          for (let i = 1; i < route.length; i += 1) {
+            ctx.lineTo(route[i].x, route[i].y);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          for (let i = 1; i < route.length; i += 1) {
+            ctx.fillStyle = i === 1 ? "#d85745" : "#f2c94c";
+            ctx.strokeStyle = "#172015";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(route[i].x, route[i].y, 10, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          ctx.restore();
         }
 
         drawAim(ctx) {

@@ -19,6 +19,7 @@ for (const match of scriptMatches) {
 const requiredClasses = [
   "class Game",
   "class Squash",
+  "class MiniSquash",
   "class Monster",
   "class Crate",
   "class Bomb",
@@ -30,14 +31,23 @@ const requiredUiTokens = [
   'id="mainMenu"',
   'id="levelSelect"',
   'id="codexScreen"',
+  'id="skillScreen"',
   'id="levelGrid"',
   'id="codexTabs"',
   'id="codexContent"',
+  'id="skillList"',
+  'id="skillsBtn"',
+  'id="hintBtn"',
+  'id="hintBox"',
   'id="menuBtn"',
   'id="overlayMenuBtn"',
   "renderLevelSelect()",
+  "renderSkillScreen()",
   "renderCodex()",
-  "CODEX_SECTIONS"
+  "CODEX_SECTIONS",
+  "SKILLS",
+  "spawnSplitSquashes",
+  "drawRouteHint"
 ];
 
 for (const token of requiredClasses) {
@@ -60,6 +70,10 @@ if (levelCount !== 6) {
 
 if (mechanismCount !== 6) {
   throw new Error(`Expected 6 level mechanism summaries, found ${mechanismCount}`);
+}
+
+if (!html.includes('name: "Level 6"') || !html.includes("hint:")) {
+  throw new Error("Level 6 must include route hint data");
 }
 
 const forbiddenSpriteTransforms = [
