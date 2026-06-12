@@ -17,7 +17,7 @@ const iconPaths = [
 ];
 const html = fs.readFileSync(indexPath, "utf8");
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-const expectedLevels = 10;
+const expectedLevels = 15;
 
 const scriptMatches = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 if (scriptMatches.length === 0) {
@@ -36,6 +36,8 @@ const requiredClasses = [
   "class Crate",
   "class Bomb",
   "class Spring",
+  "class Portal",
+  "class WindZone",
   "class Particle"
 ];
 
@@ -45,6 +47,10 @@ const requiredUiTokens = [
   'id="codexScreen"',
   'id="skillScreen"',
   'id="levelGrid"',
+  'id="levelPager"',
+  'id="prevLevelPageBtn"',
+  'id="nextLevelPageBtn"',
+  'id="levelPageText"',
   'id="codexTabs"',
   'id="codexContent"',
   'id="skillList"',
@@ -53,6 +59,8 @@ const requiredUiTokens = [
   'id="hintBox"',
   'id="menuBtn"',
   'id="overlayMenuBtn"',
+  "LEVELS_PER_PAGE",
+  "changeLevelPage",
   "renderLevelSelect()",
   "renderSkillScreen()",
   "renderCodex()",
@@ -61,7 +69,11 @@ const requiredUiTokens = [
   "manifest.webmanifest",
   "serviceWorker.register",
   "spawnSplitSquashes",
-  "drawRouteHint"
+  "drawRouteHint",
+  "handlePortals",
+  "applyWind",
+  "传送门",
+  "风道"
 ];
 
 for (const token of requiredClasses) {
@@ -97,8 +109,8 @@ for (let level = 7; level <= expectedLevels; level += 1) {
 }
 
 const routeHintCount = (html.match(/route: \[/g) || []).length;
-if (routeHintCount < 5) {
-  throw new Error(`Expected route hints for Levels 6-10, found ${routeHintCount}`);
+if (routeHintCount < 10) {
+  throw new Error(`Expected route hints for Levels 6-15, found ${routeHintCount}`);
 }
 
 if (html.includes("{ x: 112, y: 596, width: 256, height: 24")) {

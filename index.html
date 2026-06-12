@@ -143,6 +143,11 @@
       outline-offset: 2px;
     }
 
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
     .power {
       width: 100%;
       max-width: 220px;
@@ -316,9 +321,34 @@
       gap: 9px;
     }
 
+    .level-pager {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 9px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .level-pager button {
+      width: 100%;
+      min-height: 38px;
+    }
+
+    .level-page-text {
+      min-width: 78px;
+      min-height: 34px;
+      display: grid;
+      place-items: center;
+      border: 3px solid #172015;
+      background: rgba(255, 248, 220, 0.78);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
     .level-card {
-      min-height: 124px;
-      padding: 10px;
+      min-height: 108px;
+      padding: 9px;
       text-align: left;
       line-height: 1.25;
       background: var(--paper);
@@ -493,6 +523,34 @@
       display: none !important;
     }
 
+    @media (max-width: 420px) {
+      .screen {
+        padding: 12px;
+      }
+
+      .screen-panel {
+        padding: 12px;
+      }
+
+      .screen-panel h2 {
+        font-size: 22px;
+      }
+
+      .level-card {
+        min-height: 98px;
+        padding: 8px;
+      }
+
+      .level-card strong {
+        margin-bottom: 5px;
+        font-size: 14px;
+      }
+
+      .level-card small {
+        margin-top: 5px;
+      }
+    }
+
     @media (max-width: 360px) {
       .hud {
         padding: 8px;
@@ -526,6 +584,10 @@
         grid-template-columns: 1fr;
       }
 
+      .level-pager {
+        grid-template-columns: 1fr;
+      }
+
       .level-card {
         min-height: 102px;
       }
@@ -546,7 +608,7 @@
           <img src="assets/wogua.png?v=transparent-bg" alt="窝瓜">
         </div>
         <h1>窝瓜弹弹乐</h1>
-        <p class="menu-subtitle">弹开机关，清空怪物，十关连打。</p>
+        <p class="menu-subtitle">弹开机关，清空怪物，十五关连打。</p>
         <div class="menu-actions">
           <button id="startBtn" type="button">开始游戏</button>
           <button id="levelSelectBtn" type="button">选择关卡</button>
@@ -563,6 +625,11 @@
           <button class="backToMenuBtn" type="button">返回</button>
         </div>
         <div class="level-grid" id="levelGrid"></div>
+        <div class="level-pager" id="levelPager" aria-label="关卡分页">
+          <button id="prevLevelPageBtn" type="button">上一页</button>
+          <div class="level-page-text" id="levelPageText">1 / 1</div>
+          <button id="nextLevelPageBtn" type="button">下一页</button>
+        </div>
       </div>
     </section>
 
@@ -639,6 +706,7 @@
       const FRICTION = 0.985;
       const STOP_THRESHOLD = 20;
       const MAX_SPEED = 1200;
+      const LEVELS_PER_PAGE = 8;
       const TOTAL_SKILL_POINTS = 3;
       const DEFAULT_SKILLS = { bounce: 0, terrain: 0, split: 0 };
 
@@ -934,6 +1002,214 @@
             { x: 430, y: 155, width: 26, height: 230, angle: 0, bounceMultiplier: 1.45 },
             { x: 96, y: 604, width: 288, height: 24, angle: 0, bounceMultiplier: 1.48 }
           ]
+        },
+        {
+          name: "Level 11",
+          title: "第11关 传送门初试",
+          mechanics: ["传送门", "普通怪", "弹簧墙"],
+          note: "穿过传送门会保持速度，从出口继续飞。",
+          hint: "第一发瞄左下传送门，出口会把窝瓜送到右上；第二发借右墙和底部弹簧补掉下方怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 104, y: 540 },
+            { x: 366, y: 230 },
+            { x: 292, y: 304 },
+            { x: 130, y: 352 }
+          ],
+          shots: 6,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 386, y: 220, type: "normal" },
+            { x: 292, y: 304, type: "normal" },
+            { x: 130, y: 352, type: "normal" },
+            { x: 220, y: 458, type: "normal" },
+            { x: 382, y: 438, type: "normal" }
+          ],
+          crates: [
+            { x: 208, y: 374, width: 56, height: 56 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 72, y: 612, width: 240, height: 24, angle: 0, bounceMultiplier: 1.28 },
+            { x: 430, y: 300, width: 26, height: 172, angle: 0, bounceMultiplier: 1.34 }
+          ],
+          portals: [
+            { x: 104, y: 540, targetX: 366, targetY: 230, color: "#8a65ff" },
+            { x: 366, y: 230, targetX: 104, targetY: 540, color: "#8a65ff" }
+          ],
+          windZones: []
+        },
+        {
+          name: "Level 12",
+          title: "第12关 顺风清线",
+          mechanics: ["风道", "巡逻怪", "多目标"],
+          note: "风道会持续推窝瓜，顺着箭头能延长飞行。",
+          hint: "先从左下斜射进中路风道，让风把窝瓜推向右上；巡逻怪靠近中线时再补第二发。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 134, y: 446 },
+            { x: 330, y: 330 },
+            { x: 398, y: 212 },
+            { x: 166, y: 246 }
+          ],
+          shots: 7,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 90, y: 258, type: "normal" },
+            { x: 166, y: 246, type: "moving", path: { span: 56 } },
+            { x: 312, y: 300, type: "normal" },
+            { x: 398, y: 212, type: "normal" },
+            { x: 378, y: 444, type: "moving", path: { span: 48 } },
+            { x: 168, y: 510, type: "normal" }
+          ],
+          crates: [
+            { x: 230, y: 408, width: 58, height: 58 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 24, y: 422, width: 26, height: 176, angle: 0, bounceMultiplier: 1.32 },
+            { x: 430, y: 230, width: 26, height: 190, angle: 0, bounceMultiplier: 1.32 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 112, y: 320, width: 260, height: 116, forceX: 260, forceY: -95, label: "顺风" }
+          ]
+        },
+        {
+          name: "Level 13",
+          title: "第13关 传送连爆",
+          mechanics: ["传送门", "炸弹桶", "范围伤害"],
+          note: "传送门出口贴近炸弹，适合做连锁爆破。",
+          hint: "先打左下传送门，出口会靠近上方炸弹；爆完后用中路传送门或墙面反弹补右侧残怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 90, y: 548 },
+            { x: 286, y: 236 },
+            { x: 322, y: 230 },
+            { x: 154, y: 388 },
+            { x: 402, y: 386 }
+          ],
+          shots: 7,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 100, y: 218, type: "normal" },
+            { x: 198, y: 278, type: "normal" },
+            { x: 360, y: 214, type: "helmet" },
+            { x: 402, y: 386, type: "normal" },
+            { x: 292, y: 468, type: "normal" },
+            { x: 112, y: 486, type: "normal" },
+            { x: 244, y: 550, type: "normal" }
+          ],
+          crates: [
+            { x: 224, y: 354, width: 56, height: 56 },
+            { x: 332, y: 472, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 322, y: 230, explosionRadius: 126 },
+            { x: 154, y: 388, explosionRadius: 120 }
+          ],
+          springs: [
+            { x: 430, y: 438, width: 26, height: 166, angle: 0, bounceMultiplier: 1.35 }
+          ],
+          portals: [
+            { x: 90, y: 548, targetX: 286, targetY: 236, color: "#c45cff" },
+            { x: 286, y: 236, targetX: 90, targetY: 548, color: "#c45cff" },
+            { x: 390, y: 536, targetX: 186, targetY: 388, color: "#ff8a4a" },
+            { x: 186, y: 388, targetX: 390, targetY: 536, color: "#ff8a4a" }
+          ],
+          windZones: []
+        },
+        {
+          name: "Level 14",
+          title: "第14关 逆风弹簧",
+          mechanics: ["风道", "弹簧墙", "头盔怪"],
+          note: "逆风会减速，贴弹簧边缘走能抵消推力。",
+          hint: "先贴右侧弹簧上行避开逆风，再从顶部回到左侧头盔怪；剩余目标用分裂或底部弹簧补。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 430, y: 420 },
+            { x: 348, y: 178 },
+            { x: 138, y: 254 },
+            { x: 92, y: 452 }
+          ],
+          shots: 8,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 138, y: 254, type: "helmet" },
+            { x: 258, y: 202, type: "normal" },
+            { x: 348, y: 178, type: "normal" },
+            { x: 386, y: 338, type: "helmet" },
+            { x: 92, y: 452, type: "normal" },
+            { x: 238, y: 494, type: "moving", path: { span: 52 } },
+            { x: 354, y: 540, type: "normal" }
+          ],
+          crates: [
+            { x: 190, y: 340, width: 58, height: 58 },
+            { x: 282, y: 394, width: 58, height: 58 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 24, y: 280, width: 26, height: 220, angle: 0, bounceMultiplier: 1.42 },
+            { x: 430, y: 260, width: 26, height: 246, angle: 0, bounceMultiplier: 1.46 },
+            { x: 112, y: 620, width: 256, height: 24, angle: 0, bounceMultiplier: 1.38 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 126, y: 290, width: 230, height: 190, forceX: -235, forceY: 55, label: "逆风" }
+          ]
+        },
+        {
+          name: "Level 15",
+          title: "第15关 风门终阵",
+          mechanics: ["传送门", "风道", "炸弹桶", "巡逻怪", "头盔怪"],
+          note: "最终综合关，先打开风门路线，再用炸弹收尾。",
+          hint: "第一发进中下传送门打上方炸弹；第二发顺风道扫右侧，最后留一发处理左侧头盔怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 240, y: 560 },
+            { x: 292, y: 240 },
+            { x: 320, y: 232 },
+            { x: 396, y: 370 },
+            { x: 136, y: 250 },
+            { x: 102, y: 474 }
+          ],
+          shots: 9,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 102, y: 204, type: "helmet" },
+            { x: 196, y: 246, type: "moving", path: { span: 58 } },
+            { x: 338, y: 194, type: "normal" },
+            { x: 398, y: 326, type: "helmet" },
+            { x: 334, y: 470, type: "moving", path: { span: 62 } },
+            { x: 200, y: 430, type: "normal" },
+            { x: 102, y: 474, type: "normal" },
+            { x: 258, y: 558, type: "normal" }
+          ],
+          crates: [
+            { x: 142, y: 330, width: 56, height: 56 },
+            { x: 258, y: 346, width: 58, height: 58 },
+            { x: 344, y: 534, width: 56, height: 56 }
+          ],
+          bombs: [
+            { x: 320, y: 232, explosionRadius: 132 },
+            { x: 136, y: 250, explosionRadius: 120 },
+            { x: 396, y: 370, explosionRadius: 122 }
+          ],
+          springs: [
+            { x: 24, y: 310, width: 26, height: 206, angle: 0, bounceMultiplier: 1.44 },
+            { x: 430, y: 430, width: 26, height: 186, angle: 0, bounceMultiplier: 1.44 },
+            { x: 98, y: 626, width: 284, height: 24, angle: 0, bounceMultiplier: 1.42 }
+          ],
+          portals: [
+            { x: 240, y: 560, targetX: 292, targetY: 240, color: "#8a65ff" },
+            { x: 292, y: 240, targetX: 240, targetY: 560, color: "#8a65ff" },
+            { x: 84, y: 560, targetX: 360, targetY: 388, color: "#ff8a4a" },
+            { x: 360, y: 388, targetX: 84, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 78, y: 386, width: 298, height: 104, forceX: 245, forceY: -70, label: "顺风" },
+            { x: 150, y: 176, width: 210, height: 92, forceX: -180, forceY: 95, label: "乱流" }
+          ]
         }
       ];
 
@@ -954,6 +1230,8 @@
             { icon: "箱", name: "木箱", text: "会阻挡窝瓜路线，被撞后破碎，可当作一次反弹点。" },
             { icon: "爆", name: "炸弹桶", text: "被撞后立即爆炸，范围内怪物受到 2 点伤害。" },
             { icon: "弹", name: "弹簧墙", text: "碰撞后按更高速度反弹，适合在窄角度里补刀。" },
+            { icon: "门", name: "传送门", text: "碰到入口会从同色出口飞出，速度方向会保留。" },
+            { icon: "风", name: "风道", text: "进入区域后持续受到箭头方向推力，顺风可延长路线，逆风会减速。" },
             { icon: "边", name: "边界反弹", text: "窝瓜撞到四周边界会反弹，速度会稍微衰减。" }
           ]
         },
@@ -1044,6 +1322,7 @@
           this.stopTimer = 0;
           this.sprite = null;
           this.hitSquash = 0;
+          this.portalCooldown = 0;
         }
 
         setSprite(sprite) {
@@ -1071,6 +1350,7 @@
           this.velocityX *= decay;
           this.velocityY *= decay;
           this.hitSquash = Math.max(0, this.hitSquash - dt * 5);
+          this.portalCooldown = Math.max(0, this.portalCooldown - dt);
         }
 
         shouldStop(dt) {
@@ -1091,6 +1371,7 @@
           this.state = "idle";
           this.stopTimer = 0;
           this.hitSquash = 0;
+          this.portalCooldown = 0;
         }
 
         draw(ctx) {
@@ -1119,6 +1400,7 @@
           this.damage = 1;
           this.sprite = sprite;
           this.hitSquash = 0;
+          this.portalCooldown = 0;
           this.life = 4.4;
           this.stopTimer = 0;
           this.isAlive = true;
@@ -1133,6 +1415,7 @@
           this.velocityX *= decay;
           this.velocityY *= decay;
           this.hitSquash = Math.max(0, this.hitSquash - dt * 5);
+          this.portalCooldown = Math.max(0, this.portalCooldown - dt);
 
           if (length(this.velocityX, this.velocityY) < STOP_THRESHOLD) {
             this.stopTimer += dt;
@@ -1369,6 +1652,131 @@
         }
       }
 
+      class Portal {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.targetX = config.targetX;
+          this.targetY = config.targetY;
+          this.radius = config.radius || 27;
+          this.color = config.color || "#8a65ff";
+        }
+
+        contains(projectile) {
+          return length(projectile.x - this.x, projectile.y - this.y) < this.radius + projectile.radius * 0.42;
+        }
+
+        tryTeleport(projectile, game) {
+          if ((projectile.portalCooldown || 0) > 0 || !this.contains(projectile)) return false;
+
+          const speed = length(projectile.velocityX, projectile.velocityY);
+          const nx = speed > 0 ? projectile.velocityX / speed : 0;
+          const ny = speed > 0 ? projectile.velocityY / speed : -1;
+          projectile.x = clamp(this.targetX + nx * 16, projectile.radius, WORLD_WIDTH - projectile.radius);
+          projectile.y = clamp(this.targetY + ny * 16, projectile.radius, WORLD_HEIGHT - 14 - projectile.radius);
+          projectile.portalCooldown = 0.45;
+
+          if (speed < 280) {
+            projectile.velocityX = nx * 320;
+            projectile.velocityY = ny * 320;
+          }
+
+          game.spawnBurst(this.x, this.y, this.color, 10);
+          game.spawnBurst(this.targetX, this.targetY, this.color, 14);
+          game.addFloatingText("传送!", this.targetX, this.targetY - 36, this.color);
+          return true;
+        }
+
+        draw(ctx) {
+          ctx.save();
+          ctx.translate(this.x, this.y);
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = "#172015";
+          ctx.fillStyle = "rgba(255, 248, 220, 0.72)";
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.strokeStyle = this.color;
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius - 7, 0.2, Math.PI * 1.72);
+          ctx.stroke();
+          drawPixelDiamond(ctx, 0, 0, 8, this.color);
+          ctx.restore();
+        }
+      }
+
+      class WindZone {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.width = config.width;
+          this.height = config.height;
+          this.forceX = config.forceX || 0;
+          this.forceY = config.forceY || 0;
+          this.label = config.label || "风道";
+        }
+
+        contains(projectile) {
+          return projectile.x + projectile.radius > this.x
+            && projectile.x - projectile.radius < this.x + this.width
+            && projectile.y + projectile.radius > this.y
+            && projectile.y - projectile.radius < this.y + this.height;
+        }
+
+        apply(projectile, dt) {
+          if (!this.contains(projectile)) return false;
+          projectile.velocityX += this.forceX * dt;
+          projectile.velocityY += this.forceY * dt;
+          return true;
+        }
+
+        draw(ctx) {
+          const magnitude = length(this.forceX, this.forceY) || 1;
+          const nx = this.forceX / magnitude;
+          const ny = this.forceY / magnitude;
+
+          ctx.save();
+          ctx.globalAlpha = 0.42;
+          ctx.fillStyle = "#7fd8ef";
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = "#172015";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+          ctx.fillStyle = "#172015";
+          ctx.font = "900 14px system-ui, sans-serif";
+          ctx.textAlign = "left";
+          ctx.fillText(this.label, this.x + 8, this.y + 20);
+
+          ctx.strokeStyle = "#fff8dc";
+          ctx.lineWidth = 4;
+          ctx.fillStyle = "#fff8dc";
+          for (let y = this.y + 38; y < this.y + this.height - 14; y += 34) {
+            for (let x = this.x + 28; x < this.x + this.width - 18; x += 58) {
+              const ex = x + nx * 24;
+              const ey = y + ny * 24;
+              ctx.beginPath();
+              ctx.moveTo(x, y);
+              ctx.lineTo(ex, ey);
+              ctx.stroke();
+
+              ctx.beginPath();
+              ctx.moveTo(ex, ey);
+              ctx.lineTo(ex - nx * 8 - ny * 5, ey - ny * 8 + nx * 5);
+              ctx.lineTo(ex - nx * 8 + ny * 5, ey - ny * 8 - nx * 5);
+              ctx.closePath();
+              ctx.fill();
+            }
+          }
+
+          ctx.restore();
+        }
+      }
+
       class Particle {
         constructor(x, y, vx, vy, color, size, life, gravity = 0) {
           this.x = x;
@@ -1442,6 +1850,9 @@
           this.skillsBtn = document.getElementById("skillsBtn");
           this.codexBtn = document.getElementById("codexBtn");
           this.levelGrid = document.getElementById("levelGrid");
+          this.prevLevelPageBtn = document.getElementById("prevLevelPageBtn");
+          this.nextLevelPageBtn = document.getElementById("nextLevelPageBtn");
+          this.levelPageText = document.getElementById("levelPageText");
           this.codexTabs = document.getElementById("codexTabs");
           this.codexContent = document.getElementById("codexContent");
           this.skillScreen = document.getElementById("skillScreen");
@@ -1468,6 +1879,7 @@
           this.overlayNextBtn = document.getElementById("overlayNextBtn");
 
           this.levelIndex = 0;
+          this.levelPageIndex = 0;
           this.state = "menu";
           this.shotsLeft = 0;
           this.aiming = false;
@@ -1513,6 +1925,8 @@
           this.levelSelectBtn.addEventListener("click", () => this.showLevelSelect());
           this.skillsBtn.addEventListener("click", () => this.showSkills());
           this.codexBtn.addEventListener("click", () => this.showCodex());
+          this.prevLevelPageBtn.addEventListener("click", () => this.changeLevelPage(-1));
+          this.nextLevelPageBtn.addEventListener("click", () => this.changeLevelPage(1));
           for (const button of this.backToMenuBtns) {
             button.addEventListener("click", () => this.showMainMenu());
           }
@@ -1629,10 +2043,28 @@
           this.renderSkillScreen();
         }
 
+        getLevelPageCount() {
+          return Math.max(1, Math.ceil(LEVELS.length / LEVELS_PER_PAGE));
+        }
+
+        changeLevelPage(delta) {
+          const pageCount = this.getLevelPageCount();
+          const nextPage = clamp(this.levelPageIndex + delta, 0, pageCount - 1);
+          if (nextPage === this.levelPageIndex) return;
+          this.levelPageIndex = nextPage;
+          this.renderLevelSelect();
+          this.updateLevelCards();
+        }
+
         renderLevelSelect() {
           this.levelGrid.textContent = "";
+          const pageCount = this.getLevelPageCount();
+          this.levelPageIndex = clamp(this.levelPageIndex, 0, pageCount - 1);
+          const startIndex = this.levelPageIndex * LEVELS_PER_PAGE;
+          const endIndex = Math.min(startIndex + LEVELS_PER_PAGE, LEVELS.length);
 
-          LEVELS.forEach((level, index) => {
+          for (let index = startIndex; index < endIndex; index += 1) {
+            const level = LEVELS[index];
             const card = document.createElement("button");
             card.type = "button";
             card.className = "level-card";
@@ -1650,7 +2082,9 @@
             card.append(title, mechanics, note);
             card.addEventListener("click", () => this.startLevel(index));
             this.levelGrid.append(card);
-          });
+          }
+
+          this.updateLevelPager();
         }
 
         renderCodex() {
@@ -1741,6 +2175,8 @@
           this.overlay.classList.add("hidden");
           this.hintBox.classList.add("hidden");
           this.hud.classList.add("hidden");
+          this.levelPageIndex = Math.floor(this.levelIndex / LEVELS_PER_PAGE);
+          this.renderLevelSelect();
           this.showScreen("levels");
           this.updateLevelCards();
         }
@@ -1771,6 +2207,14 @@
           cards.forEach((card) => {
             card.classList.toggle("is-current", Number(card.dataset.level) === this.levelIndex);
           });
+          this.updateLevelPager();
+        }
+
+        updateLevelPager() {
+          const pageCount = this.getLevelPageCount();
+          this.levelPageText.textContent = `${this.levelPageIndex + 1} / ${pageCount}`;
+          this.prevLevelPageBtn.disabled = this.levelPageIndex <= 0;
+          this.nextLevelPageBtn.disabled = this.levelPageIndex >= pageCount - 1;
         }
 
         loadLevel(index, options = {}) {
@@ -1794,6 +2238,8 @@
           this.crates = level.crates.map((config) => new Crate(config));
           this.bombs = level.bombs.map((config) => new Bomb(config));
           this.springs = level.springs.map((config) => new Spring(config));
+          this.portals = (level.portals || []).map((config) => new Portal(config));
+          this.windZones = (level.windZones || []).map((config) => new WindZone(config));
           this.applySkillTerrain();
 
           this.overlay.classList.add("hidden");
@@ -1944,7 +2390,9 @@
           if (this.state === "playing") {
             this.squash.integrate(dt);
             if (this.squash.state === "moving") {
+              this.applyWind(this.squash, dt);
               this.handleBounds(this.squash);
+              this.handlePortals(this.squash);
               this.handleCollisions(this.squash);
 
               if (this.squash.shouldStop(dt)) {
@@ -1955,7 +2403,9 @@
             for (const mini of this.miniSquashes) {
               mini.integrate(dt);
               if (!mini.isAlive) continue;
+              this.applyWind(mini, dt);
               this.handleBounds(mini);
+              this.handlePortals(mini);
               this.handleCollisions(mini);
             }
             this.miniSquashes = this.miniSquashes.filter((mini) => mini.isAlive);
@@ -1977,6 +2427,47 @@
 
           this.shake = Math.max(0, this.shake - dt * 30);
           this.syncUI();
+        }
+
+        applyWind(projectile, dt) {
+          if (!this.windZones) return;
+          let pushed = false;
+
+          for (const zone of this.windZones) {
+            if (zone.apply(projectile, dt)) pushed = true;
+          }
+
+          if (!pushed) return;
+          this.limitProjectileSpeed(projectile);
+
+          if (Math.random() < 0.08) {
+            this.particles.push(new Particle(
+              projectile.x - Math.sign(projectile.velocityX || 1) * projectile.radius,
+              projectile.y + (Math.random() - 0.5) * projectile.radius,
+              -projectile.velocityX * 0.08,
+              -projectile.velocityY * 0.08,
+              "#dff6ff",
+              2,
+              0.25
+            ));
+          }
+        }
+
+        handlePortals(projectile) {
+          if (!this.portals) return;
+          for (const portal of this.portals) {
+            if (portal.tryTeleport(projectile, this)) {
+              this.limitProjectileSpeed(projectile);
+              break;
+            }
+          }
+        }
+
+        limitProjectileSpeed(projectile) {
+          const speed = length(projectile.velocityX, projectile.velocityY);
+          if (speed <= MAX_SPEED) return;
+          projectile.velocityX = (projectile.velocityX / speed) * MAX_SPEED;
+          projectile.velocityY = (projectile.velocityY / speed) * MAX_SPEED;
         }
 
         handleBounds(projectile) {
@@ -2216,12 +2707,14 @@
           }
 
           this.drawBackground(ctx);
+          for (const windZone of this.windZones || []) windZone.draw(ctx);
           if (this.hintVisible) this.drawRouteHint(ctx);
           if (this.aiming) this.drawAim(ctx);
 
           for (const spring of this.springs) spring.draw(ctx);
           for (const crate of this.crates) crate.draw(ctx);
           for (const bomb of this.bombs) bomb.draw(ctx);
+          for (const portal of this.portals || []) portal.draw(ctx);
           for (const monster of this.monsters) monster.draw(ctx);
           for (const mini of this.miniSquashes) mini.draw(ctx);
           this.squash.draw(ctx);
