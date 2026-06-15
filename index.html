@@ -608,7 +608,7 @@
           <img src="assets/wogua.png?v=transparent-bg" alt="窝瓜">
         </div>
         <h1>窝瓜弹弹乐</h1>
-        <p class="menu-subtitle">弹开机关，清空怪物，十五关连打。</p>
+        <p class="menu-subtitle">弹开机关，清空怪物，二十关连打。</p>
         <div class="menu-actions">
           <button id="startBtn" type="button">开始游戏</button>
           <button id="levelSelectBtn" type="button">选择关卡</button>
@@ -1209,6 +1209,253 @@
           windZones: [
             { x: 78, y: 386, width: 298, height: 104, forceX: 245, forceY: -70, label: "顺风" },
             { x: 150, y: 176, width: 210, height: 92, forceX: -180, forceY: 95, label: "乱流" }
+          ]
+        },
+        {
+          name: "Level 16",
+          title: "第16关 回风入口",
+          mechanics: ["传送门", "风道", "多目标"],
+          note: "风道会把窝瓜推回入口附近，适合练习二段路线。",
+          hint: "第一发进左下传送门清右上，第二发借顺风道回中路；别急着打头盔怪，先清普通怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 112, y: 552 },
+            { x: 356, y: 242 },
+            { x: 398, y: 332 },
+            { x: 224, y: 406 },
+            { x: 126, y: 278 }
+          ],
+          shots: 8,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 126, y: 278, type: "normal" },
+            { x: 224, y: 406, type: "normal" },
+            { x: 356, y: 242, type: "normal" },
+            { x: 398, y: 332, type: "helmet" },
+            { x: 138, y: 486, type: "normal" },
+            { x: 318, y: 512, type: "moving", path: { span: 52 } },
+            { x: 230, y: 210, type: "normal" }
+          ],
+          crates: [
+            { x: 176, y: 344, width: 56, height: 56 },
+            { x: 286, y: 420, width: 56, height: 56 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 28, y: 302, width: 26, height: 196, angle: 0, bounceMultiplier: 1.35 },
+            { x: 430, y: 260, width: 26, height: 184, angle: 0, bounceMultiplier: 1.35 },
+            { x: 112, y: 628, width: 250, height: 24, angle: 0, bounceMultiplier: 1.34 }
+          ],
+          portals: [
+            { x: 112, y: 552, targetX: 356, targetY: 242, color: "#8a65ff" },
+            { x: 356, y: 242, targetX: 112, targetY: 552, color: "#8a65ff" }
+          ],
+          windZones: [
+            { x: 126, y: 360, width: 240, height: 96, forceX: -190, forceY: -80, label: "回风" }
+          ]
+        },
+        {
+          name: "Level 17",
+          title: "第17关 双门夹击",
+          mechanics: ["传送门", "炸弹桶", "弹簧墙", "头盔怪"],
+          note: "两组传送门分别处理左右两侧，炸弹能打开中路。",
+          hint: "先走紫门贴近上方炸弹，清掉右上；再走橙门打左侧炸弹，最后用底部弹簧补头盔怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 92, y: 558 },
+            { x: 300, y: 236 },
+            { x: 346, y: 248 },
+            { x: 390, y: 546 },
+            { x: 154, y: 388 },
+            { x: 102, y: 440 }
+          ],
+          shots: 9,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 102, y: 216, type: "helmet" },
+            { x: 202, y: 276, type: "normal" },
+            { x: 350, y: 216, type: "normal" },
+            { x: 406, y: 336, type: "helmet" },
+            { x: 102, y: 440, type: "normal" },
+            { x: 258, y: 466, type: "moving", path: { span: 58 } },
+            { x: 376, y: 514, type: "normal" },
+            { x: 202, y: 558, type: "normal" }
+          ],
+          crates: [
+            { x: 220, y: 338, width: 58, height: 58 },
+            { x: 302, y: 416, width: 56, height: 56 }
+          ],
+          bombs: [
+            { x: 346, y: 248, explosionRadius: 124 },
+            { x: 154, y: 388, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 24, y: 300, width: 26, height: 210, angle: 0, bounceMultiplier: 1.42 },
+            { x: 430, y: 302, width: 26, height: 210, angle: 0, bounceMultiplier: 1.42 },
+            { x: 104, y: 628, width: 272, height: 24, angle: 0, bounceMultiplier: 1.4 }
+          ],
+          portals: [
+            { x: 92, y: 558, targetX: 300, targetY: 236, color: "#8a65ff" },
+            { x: 300, y: 236, targetX: 92, targetY: 558, color: "#8a65ff" },
+            { x: 390, y: 546, targetX: 184, targetY: 388, color: "#ff8a4a" },
+            { x: 184, y: 388, targetX: 390, targetY: 546, color: "#ff8a4a" }
+          ],
+          windZones: []
+        },
+        {
+          name: "Level 18",
+          title: "第18关 逆流巡线",
+          mechanics: ["风道", "巡逻怪", "木箱", "头盔怪"],
+          note: "两段风道方向相反，等待巡逻怪靠近中线再出手。",
+          hint: "第一发贴右侧弹簧避开逆风，第二发顺中间风道横扫巡逻怪；头盔怪用分裂或第三发补。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 430, y: 448 },
+            { x: 360, y: 230 },
+            { x: 244, y: 330 },
+            { x: 134, y: 280 },
+            { x: 92, y: 506 }
+          ],
+          shots: 9,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 134, y: 280, type: "helmet" },
+            { x: 244, y: 330, type: "moving", path: { span: 72 } },
+            { x: 360, y: 230, type: "normal" },
+            { x: 392, y: 392, type: "helmet" },
+            { x: 258, y: 486, type: "moving", path: { span: 64 } },
+            { x: 92, y: 506, type: "normal" },
+            { x: 344, y: 560, type: "normal" },
+            { x: 184, y: 566, type: "normal" }
+          ],
+          crates: [
+            { x: 168, y: 380, width: 58, height: 58 },
+            { x: 282, y: 394, width: 58, height: 58 },
+            { x: 226, y: 548, width: 54, height: 54 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 24, y: 246, width: 26, height: 214, angle: 0, bounceMultiplier: 1.44 },
+            { x: 430, y: 374, width: 26, height: 226, angle: 0, bounceMultiplier: 1.46 },
+            { x: 92, y: 640, width: 296, height: 24, angle: 0, bounceMultiplier: 1.38 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 112, y: 292, width: 258, height: 92, forceX: 250, forceY: -40, label: "横风" },
+            { x: 108, y: 456, width: 250, height: 110, forceX: -220, forceY: 70, label: "逆流" }
+          ]
+        },
+        {
+          name: "Level 19",
+          title: "第19关 爆风连锁",
+          mechanics: ["风道", "传送门", "炸弹桶", "范围伤害"],
+          note: "风道会改变进入炸弹区的角度，连锁顺序很关键。",
+          hint: "先打中下传送门进左上炸弹区，再借横风推向右侧炸弹；最后从底部弹簧清残血。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 238, y: 566 },
+            { x: 134, y: 246 },
+            { x: 170, y: 270 },
+            { x: 372, y: 336 },
+            { x: 404, y: 510 },
+            { x: 106, y: 472 }
+          ],
+          shots: 10,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 94, y: 214, type: "helmet" },
+            { x: 200, y: 284, type: "normal" },
+            { x: 320, y: 214, type: "moving", path: { span: 62 } },
+            { x: 410, y: 330, type: "normal" },
+            { x: 354, y: 454, type: "helmet" },
+            { x: 214, y: 474, type: "normal" },
+            { x: 106, y: 472, type: "normal" },
+            { x: 266, y: 574, type: "moving", path: { span: 58 } },
+            { x: 396, y: 570, type: "normal" }
+          ],
+          crates: [
+            { x: 152, y: 356, width: 56, height: 56 },
+            { x: 256, y: 356, width: 56, height: 56 },
+            { x: 302, y: 500, width: 56, height: 56 }
+          ],
+          bombs: [
+            { x: 170, y: 270, explosionRadius: 126 },
+            { x: 372, y: 336, explosionRadius: 126 },
+            { x: 404, y: 510, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 24, y: 320, width: 26, height: 210, angle: 0, bounceMultiplier: 1.45 },
+            { x: 430, y: 240, width: 26, height: 228, angle: 0, bounceMultiplier: 1.45 },
+            { x: 94, y: 634, width: 292, height: 24, angle: 0, bounceMultiplier: 1.42 }
+          ],
+          portals: [
+            { x: 238, y: 566, targetX: 134, targetY: 246, color: "#8a65ff" },
+            { x: 134, y: 246, targetX: 238, targetY: 566, color: "#8a65ff" },
+            { x: 78, y: 570, targetX: 372, targetY: 306, color: "#ff8a4a" },
+            { x: 372, y: 306, targetX: 78, targetY: 570, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 154, y: 300, width: 230, height: 92, forceX: 265, forceY: 20, label: "爆风" },
+            { x: 104, y: 470, width: 280, height: 92, forceX: -190, forceY: -95, label: "回卷" }
+          ]
+        },
+        {
+          name: "Level 20",
+          title: "第20关 终章机关迷城",
+          mechanics: ["传送门", "风道", "炸弹桶", "弹簧墙", "巡逻怪", "头盔怪"],
+          note: "二十关最终综合战，先开炸弹链，再处理头盔与巡逻残怪。",
+          hint: "第一发进紫门开上方炸弹链；第二发顺右侧风道清巡逻怪；最后用底部弹簧和橙门补头盔怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 116, y: 570 },
+            { x: 302, y: 226 },
+            { x: 338, y: 242 },
+            { x: 404, y: 388 },
+            { x: 354, y: 548 },
+            { x: 120, y: 438 },
+            { x: 96, y: 230 }
+          ],
+          shots: 11,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 96, y: 230, type: "helmet" },
+            { x: 178, y: 282, type: "moving", path: { span: 54 } },
+            { x: 316, y: 196, type: "normal" },
+            { x: 408, y: 300, type: "helmet" },
+            { x: 360, y: 436, type: "moving", path: { span: 64 } },
+            { x: 236, y: 420, type: "normal" },
+            { x: 116, y: 470, type: "helmet" },
+            { x: 92, y: 560, type: "normal" },
+            { x: 256, y: 560, type: "moving", path: { span: 52 } },
+            { x: 394, y: 574, type: "normal" }
+          ],
+          crates: [
+            { x: 142, y: 336, width: 56, height: 56 },
+            { x: 244, y: 330, width: 58, height: 58 },
+            { x: 300, y: 486, width: 56, height: 56 },
+            { x: 174, y: 532, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 338, y: 242, explosionRadius: 132 },
+            { x: 404, y: 388, explosionRadius: 124 },
+            { x: 120, y: 438, explosionRadius: 116 },
+            { x: 354, y: 548, explosionRadius: 116 }
+          ],
+          springs: [
+            { x: 24, y: 260, width: 26, height: 244, angle: 0, bounceMultiplier: 1.48 },
+            { x: 430, y: 318, width: 26, height: 244, angle: 0, bounceMultiplier: 1.48 },
+            { x: 84, y: 646, width: 312, height: 24, angle: 0, bounceMultiplier: 1.45 }
+          ],
+          portals: [
+            { x: 116, y: 570, targetX: 302, targetY: 226, color: "#8a65ff" },
+            { x: 302, y: 226, targetX: 116, targetY: 570, color: "#8a65ff" },
+            { x: 388, y: 560, targetX: 154, targetY: 410, color: "#ff8a4a" },
+            { x: 154, y: 410, targetX: 388, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 84, y: 286, width: 280, height: 92, forceX: 230, forceY: -70, label: "上升风" },
+            { x: 128, y: 448, width: 264, height: 98, forceX: -230, forceY: 55, label: "回旋风" },
+            { x: 246, y: 536, width: 160, height: 82, forceX: 120, forceY: -210, label: "升流" }
           ]
         }
       ];

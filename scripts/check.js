@@ -17,7 +17,7 @@ const iconPaths = [
 ];
 const html = fs.readFileSync(indexPath, "utf8");
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-const expectedLevels = 15;
+const expectedLevels = 20;
 
 const scriptMatches = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 if (scriptMatches.length === 0) {
@@ -109,8 +109,8 @@ for (let level = 7; level <= expectedLevels; level += 1) {
 }
 
 const routeHintCount = (html.match(/route: \[/g) || []).length;
-if (routeHintCount < 10) {
-  throw new Error(`Expected route hints for Levels 6-15, found ${routeHintCount}`);
+if (routeHintCount < 15) {
+  throw new Error(`Expected route hints for Levels 6-20, found ${routeHintCount}`);
 }
 
 if (html.includes("{ x: 112, y: 596, width: 256, height: 24")) {
