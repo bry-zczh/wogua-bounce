@@ -608,7 +608,7 @@
           <img src="assets/wogua.png?v=transparent-bg" alt="窝瓜">
         </div>
         <h1>窝瓜弹弹乐</h1>
-        <p class="menu-subtitle">弹开机关，清空怪物，二十关连打。</p>
+        <p class="menu-subtitle">弹开机关，清空怪物，二十五关连打。</p>
         <div class="menu-actions">
           <button id="startBtn" type="button">开始游戏</button>
           <button id="levelSelectBtn" type="button">选择关卡</button>
@@ -1457,6 +1457,253 @@
             { x: 128, y: 448, width: 264, height: 98, forceX: -230, forceY: 55, label: "回旋风" },
             { x: 246, y: 536, width: 160, height: 82, forceX: 120, forceY: -210, label: "升流" }
           ]
+        },
+        {
+          name: "Level 21",
+          title: "第21关 移动弹簧入门",
+          mechanics: ["移动弹簧", "风道", "多目标"],
+          note: "底部弹簧会左右巡航，等它靠中时更容易把窝瓜送进上方风道。",
+          hint: "第一发等底部弹簧靠近中线再打，借它弹进上方顺风；第二发处理左右两侧残怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 240, y: 632 },
+            { x: 316, y: 418 },
+            { x: 390, y: 260 },
+            { x: 206, y: 232 },
+            { x: 112, y: 388 }
+          ],
+          shots: 10,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 112, y: 236, type: "normal" },
+            { x: 206, y: 232, type: "normal" },
+            { x: 312, y: 260, type: "moving", path: { span: 52 } },
+            { x: 390, y: 260, type: "normal" },
+            { x: 112, y: 388, type: "helmet" },
+            { x: 252, y: 430, type: "normal" },
+            { x: 382, y: 432, type: "normal" },
+            { x: 220, y: 540, type: "normal" }
+          ],
+          crates: [
+            { x: 172, y: 360, width: 56, height: 56 },
+            { x: 300, y: 356, width: 56, height: 56 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 152, y: 632, width: 174, height: 24, angle: 0, bounceMultiplier: 1.44, move: { axis: "x", span: 100, speed: 1.15 } },
+            { x: 24, y: 318, width: 26, height: 190, angle: 0, bounceMultiplier: 1.38 },
+            { x: 430, y: 254, width: 26, height: 210, angle: 0, bounceMultiplier: 1.38 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 146, y: 306, width: 242, height: 98, forceX: 150, forceY: -180, label: "顺升风" }
+          ]
+        },
+        {
+          name: "Level 22",
+          title: "第22关 升降弹簧门",
+          mechanics: ["移动弹簧", "传送门", "头盔怪"],
+          note: "竖向移动弹簧会改变入门角度，早晚半拍路线都不同。",
+          hint: "等左侧升降弹簧上移时打上去，进紫门后清右上；第二发借右侧移动弹簧补头盔怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 54, y: 404 },
+            { x: 104, y: 246 },
+            { x: 342, y: 244 },
+            { x: 420, y: 432 },
+            { x: 176, y: 476 }
+          ],
+          shots: 10,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 104, y: 220, type: "helmet" },
+            { x: 206, y: 268, type: "normal" },
+            { x: 342, y: 244, type: "normal" },
+            { x: 402, y: 354, type: "moving", path: { span: 48 } },
+            { x: 176, y: 476, type: "helmet" },
+            { x: 300, y: 476, type: "normal" },
+            { x: 92, y: 554, type: "normal" },
+            { x: 382, y: 562, type: "normal" }
+          ],
+          crates: [
+            { x: 218, y: 360, width: 58, height: 58 },
+            { x: 318, y: 422, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 316, y: 320, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 42, y: 366, width: 26, height: 154, angle: 0, bounceMultiplier: 1.46, move: { axis: "y", span: 94, speed: 1.25, phase: 0.8 } },
+            { x: 412, y: 390, width: 26, height: 154, angle: 0, bounceMultiplier: 1.44, move: { axis: "y", span: 84, speed: 1.05, phase: 2.2 } },
+            { x: 116, y: 640, width: 250, height: 24, angle: 0, bounceMultiplier: 1.38 }
+          ],
+          portals: [
+            { x: 104, y: 246, targetX: 342, targetY: 244, color: "#8a65ff" },
+            { x: 342, y: 244, targetX: 104, targetY: 246, color: "#8a65ff" }
+          ],
+          windZones: []
+        },
+        {
+          name: "Level 23",
+          title: "第23关 弹簧摆渡",
+          mechanics: ["移动弹簧", "炸弹桶", "范围伤害", "巡逻怪"],
+          note: "两块移动弹簧像摆渡板，能把窝瓜从中路送去两侧炸弹。",
+          hint: "第一发借下方移动弹簧去左上炸弹，第二发等右侧移动弹簧靠近中路再打右侧炸弹。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 220, y: 636 },
+            { x: 146, y: 282 },
+            { x: 182, y: 306 },
+            { x: 404, y: 434 },
+            { x: 364, y: 454 },
+            { x: 116, y: 512 }
+          ],
+          shots: 11,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 94, y: 214, type: "normal" },
+            { x: 210, y: 260, type: "helmet" },
+            { x: 340, y: 222, type: "moving", path: { span: 58 } },
+            { x: 410, y: 350, type: "normal" },
+            { x: 116, y: 512, type: "normal" },
+            { x: 246, y: 488, type: "moving", path: { span: 62 } },
+            { x: 364, y: 454, type: "helmet" },
+            { x: 394, y: 560, type: "normal" },
+            { x: 214, y: 582, type: "normal" }
+          ],
+          crates: [
+            { x: 242, y: 350, width: 58, height: 58 },
+            { x: 124, y: 424, width: 56, height: 56 },
+            { x: 314, y: 526, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 182, y: 306, explosionRadius: 126 },
+            { x: 364, y: 454, explosionRadius: 122 },
+            { x: 404, y: 588, explosionRadius: 112 }
+          ],
+          springs: [
+            { x: 136, y: 636, width: 174, height: 24, angle: 0, bounceMultiplier: 1.45, move: { axis: "x", span: 82, speed: 1.35, phase: 0.4 } },
+            { x: 414, y: 312, width: 26, height: 166, angle: 0, bounceMultiplier: 1.48, move: { axis: "y", span: 92, speed: 1.18, phase: 1.7 } },
+            { x: 24, y: 274, width: 26, height: 220, angle: 0, bounceMultiplier: 1.43 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 132, y: 350, width: 248, height: 92, forceX: 210, forceY: -40, label: "横推风" }
+          ]
+        },
+        {
+          name: "Level 24",
+          title: "第24关 风门移动阵",
+          mechanics: ["移动弹簧", "传送门", "风道", "头盔怪"],
+          note: "移动弹簧会改变传送门入口位置，需要用风道修正出门后的路线。",
+          hint: "第一发等中路移动弹簧靠左时进紫门；出门后顺风清右侧，第二发用橙门回左侧补头盔。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 190, y: 622 },
+            { x: 112, y: 512 },
+            { x: 344, y: 226 },
+            { x: 404, y: 344 },
+            { x: 154, y: 408 },
+            { x: 108, y: 248 }
+          ],
+          shots: 12,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 108, y: 248, type: "helmet" },
+            { x: 214, y: 236, type: "moving", path: { span: 54 } },
+            { x: 344, y: 226, type: "normal" },
+            { x: 404, y: 344, type: "helmet" },
+            { x: 282, y: 394, type: "normal" },
+            { x: 154, y: 408, type: "normal" },
+            { x: 92, y: 538, type: "normal" },
+            { x: 252, y: 546, type: "moving", path: { span: 58 } },
+            { x: 382, y: 560, type: "normal" }
+          ],
+          crates: [
+            { x: 172, y: 326, width: 56, height: 56 },
+            { x: 294, y: 338, width: 56, height: 56 },
+            { x: 218, y: 472, width: 58, height: 58 }
+          ],
+          bombs: [
+            { x: 404, y: 344, explosionRadius: 116 },
+            { x: 154, y: 408, explosionRadius: 116 }
+          ],
+          springs: [
+            { x: 146, y: 622, width: 186, height: 24, angle: 0, bounceMultiplier: 1.45, move: { axis: "x", span: 94, speed: 1.22, phase: 1.1 } },
+            { x: 26, y: 300, width: 26, height: 188, angle: 0, bounceMultiplier: 1.42, move: { axis: "y", span: 70, speed: 1.35, phase: 0.2 } },
+            { x: 428, y: 276, width: 26, height: 210, angle: 0, bounceMultiplier: 1.44 }
+          ],
+          portals: [
+            { x: 112, y: 512, targetX: 344, targetY: 226, color: "#8a65ff" },
+            { x: 344, y: 226, targetX: 112, targetY: 512, color: "#8a65ff" },
+            { x: 390, y: 528, targetX: 154, targetY: 408, color: "#ff8a4a" },
+            { x: 154, y: 408, targetX: 390, targetY: 528, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 170, y: 272, width: 222, height: 94, forceX: 240, forceY: -50, label: "出门风" },
+            { x: 96, y: 452, width: 270, height: 92, forceX: -210, forceY: -70, label: "返程风" }
+          ]
+        },
+        {
+          name: "Level 25",
+          title: "第25关 游动终局",
+          mechanics: ["移动弹簧", "传送门", "风道", "炸弹桶", "巡逻怪", "头盔怪"],
+          note: "移动弹簧、传送门和风道同时参与路线，先清炸弹链再处理高血量目标。",
+          hint: "第一发等底部弹簧靠右时进紫门，开上方炸弹；第二发借右侧升降弹簧打中路炸弹，最后用橙门补左侧头盔。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 286, y: 642 },
+            { x: 120, y: 552 },
+            { x: 318, y: 230 },
+            { x: 352, y: 256 },
+            { x: 430, y: 420 },
+            { x: 360, y: 502 },
+            { x: 144, y: 414 },
+            { x: 96, y: 234 }
+          ],
+          shots: 13,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 96, y: 234, type: "helmet" },
+            { x: 190, y: 276, type: "moving", path: { span: 56 } },
+            { x: 322, y: 204, type: "normal" },
+            { x: 408, y: 306, type: "helmet" },
+            { x: 344, y: 392, type: "moving", path: { span: 64 } },
+            { x: 220, y: 420, type: "normal" },
+            { x: 112, y: 470, type: "helmet" },
+            { x: 258, y: 534, type: "moving", path: { span: 56 } },
+            { x: 396, y: 558, type: "normal" },
+            { x: 92, y: 584, type: "normal" },
+            { x: 304, y: 622, type: "normal" }
+          ],
+          crates: [
+            { x: 140, y: 336, width: 56, height: 56 },
+            { x: 252, y: 334, width: 58, height: 58 },
+            { x: 302, y: 468, width: 56, height: 56 },
+            { x: 170, y: 526, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 352, y: 256, explosionRadius: 132 },
+            { x: 360, y: 502, explosionRadius: 124 },
+            { x: 144, y: 414, explosionRadius: 118 },
+            { x: 402, y: 596, explosionRadius: 112 }
+          ],
+          springs: [
+            { x: 134, y: 642, width: 196, height: 24, angle: 0, bounceMultiplier: 1.48, move: { axis: "x", span: 110, speed: 1.32, phase: 0.5 } },
+            { x: 428, y: 330, width: 26, height: 190, angle: 0, bounceMultiplier: 1.5, move: { axis: "y", span: 96, speed: 1.18, phase: 1.5 } },
+            { x: 26, y: 260, width: 26, height: 228, angle: 0, bounceMultiplier: 1.46, move: { axis: "y", span: 78, speed: 1.42, phase: 2.6 } }
+          ],
+          portals: [
+            { x: 120, y: 552, targetX: 318, targetY: 230, color: "#8a65ff" },
+            { x: 318, y: 230, targetX: 120, targetY: 552, color: "#8a65ff" },
+            { x: 392, y: 560, targetX: 144, targetY: 414, color: "#ff8a4a" },
+            { x: 144, y: 414, targetX: 392, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 100, y: 286, width: 282, height: 92, forceX: 240, forceY: -80, label: "斜升风" },
+            { x: 108, y: 458, width: 284, height: 94, forceX: -235, forceY: 55, label: "回旋风" },
+            { x: 240, y: 556, width: 168, height: 82, forceX: 115, forceY: -220, label: "尾升流" }
+          ]
         }
       ];
 
@@ -1477,6 +1724,7 @@
             { icon: "箱", name: "木箱", text: "会阻挡窝瓜路线，被撞后破碎，可当作一次反弹点。" },
             { icon: "爆", name: "炸弹桶", text: "被撞后立即爆炸，范围内怪物受到 2 点伤害。" },
             { icon: "弹", name: "弹簧墙", text: "碰撞后按更高速度反弹，适合在窄角度里补刀。" },
+            { icon: "移", name: "移动弹簧", text: "沿轨道来回移动，碰撞时会把自身速度带给窝瓜，适合等时机借力。" },
             { icon: "门", name: "传送门", text: "碰到入口会从同色出口飞出，速度方向会保留。" },
             { icon: "风", name: "风道", text: "进入区域后持续受到箭头方向推力，顺风可延长路线，逆风会减速。" },
             { icon: "边", name: "边界反弹", text: "窝瓜撞到四周边界会反弹，速度会稍微衰减。" }
@@ -1864,13 +2112,68 @@
         constructor(config) {
           this.x = config.x;
           this.y = config.y;
+          this.baseX = config.x;
+          this.baseY = config.y;
           this.width = config.width;
           this.height = config.height;
           this.bounceMultiplier = config.bounceMultiplier || 1.5;
+          this.move = config.move || null;
+          this.moveTime = this.move?.phase || 0;
+          this.velocityX = 0;
+          this.velocityY = 0;
+        }
+
+        update(dt) {
+          if (!this.move) return;
+          const oldX = this.x;
+          const oldY = this.y;
+          const axis = this.move.axis || "x";
+          const span = this.move.span || 80;
+          const speed = this.move.speed || 1;
+          this.moveTime += dt * speed;
+          const offset = Math.sin(this.moveTime) * span;
+
+          if (axis === "y") {
+            this.x = this.baseX;
+            this.y = this.baseY + offset;
+          } else {
+            this.x = this.baseX + offset;
+            this.y = this.baseY;
+          }
+
+          if (dt > 0) {
+            this.velocityX = (this.x - oldX) / dt;
+            this.velocityY = (this.y - oldY) / dt;
+          }
+        }
+
+        drawTrack(ctx) {
+          if (!this.move) return;
+          const axis = this.move.axis || "x";
+          const span = this.move.span || 80;
+          ctx.save();
+          ctx.strokeStyle = "rgba(23, 32, 21, 0.36)";
+          ctx.lineWidth = 4;
+          ctx.setLineDash([8, 8]);
+          ctx.beginPath();
+
+          if (axis === "y") {
+            const x = this.baseX + this.width / 2;
+            ctx.moveTo(x, this.baseY - span + this.height / 2);
+            ctx.lineTo(x, this.baseY + span + this.height / 2);
+          } else {
+            const y = this.baseY + this.height / 2;
+            ctx.moveTo(this.baseX - span + this.width / 2, y);
+            ctx.lineTo(this.baseX + span + this.width / 2, y);
+          }
+
+          ctx.stroke();
+          ctx.restore();
         }
 
         draw(ctx) {
           ctx.save();
+          this.drawTrack(ctx);
           ctx.fillStyle = "#4ca3dd";
           ctx.strokeStyle = "#172015";
           ctx.lineWidth = 4;
@@ -2635,6 +2938,7 @@
           for (const monster of this.monsters) monster.update(dt);
 
           if (this.state === "playing") {
+            for (const spring of this.springs) spring.update(dt);
             this.squash.integrate(dt);
             if (this.squash.state === "moving") {
               this.applyWind(this.squash, dt);
@@ -2806,6 +3110,9 @@
             s.x += collision.nx * (collision.depth + 1);
             s.y += collision.ny * (collision.depth + 1);
             this.reflectSquash(collision.nx, collision.ny, 0.98, spring.bounceMultiplier, s);
+            s.velocityX += spring.velocityX * 0.28;
+            s.velocityY += spring.velocityY * 0.28;
+            this.limitProjectileSpeed(s);
             s.hitSquash = 1;
             this.shake = Math.max(this.shake, 6);
             this.spawnBurst(s.x, s.y, "#4ca3dd", 10);
