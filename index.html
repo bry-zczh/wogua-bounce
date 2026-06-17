@@ -732,7 +732,7 @@
           <img src="assets/wogua.png?v=transparent-bg" alt="窝瓜">
         </div>
         <h1>窝瓜弹弹乐</h1>
-        <p class="menu-subtitle">弹开机关，清空怪物，二十五关连打。</p>
+        <p class="menu-subtitle">弹开机关，清空怪物，三十五关连打。</p>
         <div class="menu-actions">
           <button id="startBtn" type="button">开始游戏</button>
           <button id="levelSelectBtn" type="button">选择关卡</button>
@@ -774,7 +774,7 @@
           <h2>技能加点</h2>
           <button class="backToMenuBtn" type="button">返回</button>
         </div>
-        <p class="skill-summary" id="skillSummary">技能点 0/3</p>
+        <p class="skill-summary" id="skillSummary">技能点 0/9</p>
         <div class="skill-list" id="skillList"></div>
         <div class="screen-actions">
           <button id="resetSkillsBtn" type="button">重置技能</button>
@@ -831,8 +831,10 @@
       const STOP_THRESHOLD = 20;
       const MAX_SPEED = 1200;
       const LEVELS_PER_PAGE = 8;
-      const TOTAL_SKILL_POINTS = 3;
-      const DEFAULT_SKILLS = { bounce: 0, terrain: 0, split: 0 };
+      const BASE_SKILL_POINTS = 3;
+      const SKILL_POINT_INTERVAL = 5;
+      const TOTAL_SKILL_POINTS = 9;
+      const DEFAULT_SKILLS = { bounce: 0, terrain: 0, split: 0, power: 0, resonance: 0, shield: 0 };
 
       const SKILLS = [
         {
@@ -852,6 +854,24 @@
           name: "分裂窝瓜",
           max: 2,
           text: "发射时额外分裂出小窝瓜，帮你补刀和触发机关。"
+        },
+        {
+          id: "power",
+          name: "强力蓄力",
+          max: 2,
+          text: "每级提升最大蓄力和速度上限，适合后期长距离切线。"
+        },
+        {
+          id: "resonance",
+          name: "爆破共鸣",
+          max: 2,
+          text: "每级扩大炸弹桶爆炸范围，更容易触发连锁清场。"
+        },
+        {
+          id: "shield",
+          name: "荆棘护盾",
+          max: 2,
+          text: "每级每关抵消 1 次尖刺重罚，并把窝瓜重新弹回路线。"
         }
       ];
 
@@ -1828,6 +1848,597 @@
             { x: 108, y: 458, width: 284, height: 94, forceX: -235, forceY: 55, label: "回旋风" },
             { x: 240, y: 556, width: 168, height: 82, forceX: 115, forceY: -220, label: "尾升流" }
           ]
+        },
+        {
+          name: "Level 26",
+          title: "第26关 双轨弹簧",
+          mechanics: ["移动弹簧", "风道", "巡逻怪", "多目标"],
+          note: "横向和纵向移动弹簧同时出现，需要等两条轨道错位时借力。",
+          hint: "第一发等底部弹簧靠左时打，借上升风进右上；第二发等左侧升降弹簧上移再补头盔怪。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 180, y: 642 },
+            { x: 318, y: 408 },
+            { x: 402, y: 246 },
+            { x: 214, y: 262 },
+            { x: 84, y: 446 },
+            { x: 336, y: 540 }
+          ],
+          shots: 13,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 90, y: 236, type: "normal" },
+            { x: 214, y: 262, type: "helmet" },
+            { x: 326, y: 214, type: "moving", path: { span: 62 } },
+            { x: 402, y: 246, type: "normal" },
+            { x: 84, y: 446, type: "helmet" },
+            { x: 228, y: 424, type: "normal" },
+            { x: 354, y: 420, type: "moving", path: { span: 54 } },
+            { x: 336, y: 540, type: "normal" },
+            { x: 132, y: 566, type: "normal" },
+            { x: 260, y: 590, type: "normal" }
+          ],
+          crates: [
+            { x: 150, y: 346, width: 56, height: 56 },
+            { x: 282, y: 342, width: 58, height: 58 },
+            { x: 218, y: 500, width: 54, height: 54 }
+          ],
+          bombs: [],
+          springs: [
+            { x: 126, y: 642, width: 188, height: 24, angle: 0, bounceMultiplier: 1.48, move: { axis: "x", span: 118, speed: 1.38, phase: 0.3 } },
+            { x: 42, y: 330, width: 26, height: 174, angle: 0, bounceMultiplier: 1.46, move: { axis: "y", span: 88, speed: 1.22, phase: 1.2 } },
+            { x: 428, y: 282, width: 26, height: 204, angle: 0, bounceMultiplier: 1.44 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 142, y: 306, width: 244, height: 94, forceX: 190, forceY: -150, label: "斜升风" },
+            { x: 112, y: 508, width: 248, height: 82, forceX: -160, forceY: -90, label: "回拉风" }
+          ]
+        },
+        {
+          name: "Level 27",
+          title: "第27关 门后连弹",
+          mechanics: ["移动弹簧", "传送门", "炸弹桶", "头盔怪"],
+          note: "传送门出口后的移动弹簧会改变炸弹切入角度。",
+          hint: "第一发进紫门，等出口旁升降弹簧靠中时弹向右上炸弹；第二发走橙门清左侧头盔。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 104, y: 564 },
+            { x: 332, y: 236 },
+            { x: 388, y: 296 },
+            { x: 368, y: 486 },
+            { x: 164, y: 416 },
+            { x: 96, y: 248 }
+          ],
+          shots: 13,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 96, y: 248, type: "helmet" },
+            { x: 198, y: 276, type: "normal" },
+            { x: 330, y: 214, type: "normal" },
+            { x: 404, y: 340, type: "helmet" },
+            { x: 266, y: 392, type: "moving", path: { span: 60 } },
+            { x: 164, y: 416, type: "normal" },
+            { x: 368, y: 486, type: "helmet" },
+            { x: 92, y: 560, type: "normal" },
+            { x: 250, y: 560, type: "moving", path: { span: 58 } },
+            { x: 392, y: 590, type: "normal" }
+          ],
+          crates: [
+            { x: 132, y: 336, width: 56, height: 56 },
+            { x: 240, y: 334, width: 58, height: 58 },
+            { x: 300, y: 520, width: 56, height: 56 }
+          ],
+          bombs: [
+            { x: 388, y: 296, explosionRadius: 128 },
+            { x: 164, y: 416, explosionRadius: 118 },
+            { x: 368, y: 486, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 422, y: 270, width: 26, height: 182, angle: 0, bounceMultiplier: 1.5, move: { axis: "y", span: 92, speed: 1.25, phase: 1.4 } },
+            { x: 124, y: 636, width: 220, height: 24, angle: 0, bounceMultiplier: 1.42, move: { axis: "x", span: 84, speed: 1.16, phase: 2.2 } },
+            { x: 24, y: 292, width: 26, height: 210, angle: 0, bounceMultiplier: 1.42 }
+          ],
+          portals: [
+            { x: 104, y: 564, targetX: 332, targetY: 236, color: "#8a65ff" },
+            { x: 332, y: 236, targetX: 104, targetY: 564, color: "#8a65ff" },
+            { x: 390, y: 560, targetX: 164, targetY: 416, color: "#ff8a4a" },
+            { x: 164, y: 416, targetX: 390, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 178, y: 330, width: 220, height: 82, forceX: 210, forceY: -65, label: "门后风" }
+          ]
+        },
+        {
+          name: "Level 28",
+          title: "第28关 逆风摆渡",
+          mechanics: ["移动弹簧", "风道", "巡逻怪", "木箱", "头盔怪"],
+          note: "逆风会压低弹道，移动弹簧要当作临时桥使用。",
+          hint: "先让窝瓜打到底部摆渡弹簧，借右侧墙进入上方横风；巡逻怪靠近中路时再补第二发。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 260, y: 648 },
+            { x: 430, y: 402 },
+            { x: 338, y: 228 },
+            { x: 212, y: 346 },
+            { x: 106, y: 514 },
+            { x: 378, y: 558 }
+          ],
+          shots: 14,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 108, y: 218, type: "normal" },
+            { x: 212, y: 282, type: "helmet" },
+            { x: 338, y: 228, type: "moving", path: { span: 68 } },
+            { x: 402, y: 360, type: "helmet" },
+            { x: 260, y: 420, type: "normal" },
+            { x: 106, y: 514, type: "normal" },
+            { x: 238, y: 536, type: "moving", path: { span: 70 } },
+            { x: 378, y: 558, type: "normal" },
+            { x: 150, y: 608, type: "normal" },
+            { x: 320, y: 622, type: "normal" }
+          ],
+          crates: [
+            { x: 154, y: 356, width: 58, height: 58 },
+            { x: 280, y: 350, width: 58, height: 58 },
+            { x: 210, y: 488, width: 58, height: 58 },
+            { x: 336, y: 486, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 402, y: 360, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 142, y: 648, width: 198, height: 24, angle: 0, bounceMultiplier: 1.5, move: { axis: "x", span: 116, speed: 1.48, phase: 0.8 } },
+            { x: 418, y: 326, width: 26, height: 196, angle: 0, bounceMultiplier: 1.48, move: { axis: "y", span: 78, speed: 1.34, phase: 0.6 } },
+            { x: 24, y: 236, width: 26, height: 222, angle: 0, bounceMultiplier: 1.42 }
+          ],
+          portals: [],
+          windZones: [
+            { x: 96, y: 296, width: 286, height: 90, forceX: 260, forceY: 20, label: "横风" },
+            { x: 96, y: 468, width: 286, height: 104, forceX: -230, forceY: 95, label: "压低风" }
+          ]
+        },
+        {
+          name: "Level 29",
+          title: "第29关 三段爆破",
+          mechanics: ["移动弹簧", "传送门", "炸弹桶", "范围伤害", "头盔怪"],
+          note: "三处炸弹分布在不同高度，移动弹簧决定连爆顺序。",
+          hint: "第一发进紫门开上方炸弹；第二发等右侧升降弹簧落下时切中路炸弹；最后用橙门补左下。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 120, y: 566 },
+            { x: 304, y: 230 },
+            { x: 344, y: 244 },
+            { x: 418, y: 424 },
+            { x: 360, y: 448 },
+            { x: 158, y: 512 },
+            { x: 104, y: 390 }
+          ],
+          shots: 14,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 92, y: 224, type: "helmet" },
+            { x: 204, y: 256, type: "normal" },
+            { x: 332, y: 212, type: "moving", path: { span: 58 } },
+            { x: 408, y: 318, type: "helmet" },
+            { x: 248, y: 390, type: "normal" },
+            { x: 104, y: 390, type: "normal" },
+            { x: 360, y: 448, type: "helmet" },
+            { x: 158, y: 512, type: "normal" },
+            { x: 292, y: 548, type: "moving", path: { span: 64 } },
+            { x: 410, y: 594, type: "normal" },
+            { x: 86, y: 592, type: "normal" }
+          ],
+          crates: [
+            { x: 138, y: 328, width: 56, height: 56 },
+            { x: 258, y: 330, width: 58, height: 58 },
+            { x: 222, y: 476, width: 58, height: 58 },
+            { x: 330, y: 532, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 344, y: 244, explosionRadius: 132 },
+            { x: 360, y: 448, explosionRadius: 124 },
+            { x: 158, y: 512, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 128, y: 638, width: 218, height: 24, angle: 0, bounceMultiplier: 1.48, move: { axis: "x", span: 108, speed: 1.28, phase: 1.1 } },
+            { x: 420, y: 310, width: 26, height: 206, angle: 0, bounceMultiplier: 1.52, move: { axis: "y", span: 106, speed: 1.22, phase: 2.4 } },
+            { x: 24, y: 300, width: 26, height: 216, angle: 0, bounceMultiplier: 1.44, move: { axis: "y", span: 74, speed: 1.38, phase: 0.4 } }
+          ],
+          portals: [
+            { x: 120, y: 566, targetX: 304, targetY: 230, color: "#8a65ff" },
+            { x: 304, y: 230, targetX: 120, targetY: 566, color: "#8a65ff" },
+            { x: 398, y: 560, targetX: 104, targetY: 390, color: "#ff8a4a" },
+            { x: 104, y: 390, targetX: 398, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 142, y: 278, width: 244, height: 84, forceX: 220, forceY: -70, label: "上段风" },
+            { x: 112, y: 462, width: 276, height: 90, forceX: -190, forceY: -40, label: "回卷风" }
+          ]
+        },
+        {
+          name: "Level 30",
+          title: "第30关 三十关终局",
+          mechanics: ["移动弹簧", "传送门", "风道", "炸弹桶", "弹簧墙", "巡逻怪", "头盔怪"],
+          note: "最终综合关，移动弹簧的时机、传送门出口和风道修正都要配合。",
+          hint: "第一发等底部移动弹簧靠右进紫门开上炸弹；第二发借右侧升降弹簧打中路，最后用橙门和左侧弹簧补头盔。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 292, y: 648 },
+            { x: 118, y: 566 },
+            { x: 314, y: 226 },
+            { x: 352, y: 248 },
+            { x: 428, y: 386 },
+            { x: 370, y: 484 },
+            { x: 148, y: 430 },
+            { x: 96, y: 240 },
+            { x: 260, y: 590 }
+          ],
+          shots: 15,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 96, y: 240, type: "helmet" },
+            { x: 188, y: 268, type: "moving", path: { span: 58 } },
+            { x: 320, y: 198, type: "helmet" },
+            { x: 408, y: 308, type: "normal" },
+            { x: 364, y: 392, type: "moving", path: { span: 70 } },
+            { x: 230, y: 420, type: "normal" },
+            { x: 116, y: 470, type: "helmet" },
+            { x: 262, y: 534, type: "moving", path: { span: 60 } },
+            { x: 396, y: 558, type: "helmet" },
+            { x: 88, y: 592, type: "normal" },
+            { x: 218, y: 618, type: "normal" },
+            { x: 332, y: 628, type: "normal" }
+          ],
+          crates: [
+            { x: 138, y: 334, width: 56, height: 56 },
+            { x: 250, y: 332, width: 58, height: 58 },
+            { x: 312, y: 458, width: 56, height: 56 },
+            { x: 170, y: 524, width: 54, height: 54 },
+            { x: 260, y: 572, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 352, y: 248, explosionRadius: 136 },
+            { x: 370, y: 484, explosionRadius: 126 },
+            { x: 148, y: 430, explosionRadius: 120 },
+            { x: 408, y: 596, explosionRadius: 114 }
+          ],
+          springs: [
+            { x: 122, y: 648, width: 216, height: 24, angle: 0, bounceMultiplier: 1.52, move: { axis: "x", span: 122, speed: 1.36, phase: 0.7 } },
+            { x: 426, y: 308, width: 26, height: 212, angle: 0, bounceMultiplier: 1.54, move: { axis: "y", span: 108, speed: 1.24, phase: 1.8 } },
+            { x: 24, y: 258, width: 26, height: 242, angle: 0, bounceMultiplier: 1.48, move: { axis: "y", span: 86, speed: 1.44, phase: 2.8 } }
+          ],
+          portals: [
+            { x: 118, y: 566, targetX: 314, targetY: 226, color: "#8a65ff" },
+            { x: 314, y: 226, targetX: 118, targetY: 566, color: "#8a65ff" },
+            { x: 394, y: 562, targetX: 148, targetY: 430, color: "#ff8a4a" },
+            { x: 148, y: 430, targetX: 394, targetY: 562, color: "#ff8a4a" },
+            { x: 244, y: 292, targetX: 370, targetY: 484, color: "#4ca3dd" },
+            { x: 370, y: 484, targetX: 244, targetY: 292, color: "#4ca3dd" }
+          ],
+          windZones: [
+            { x: 96, y: 286, width: 292, height: 92, forceX: 250, forceY: -90, label: "终局升风" },
+            { x: 106, y: 454, width: 286, height: 96, forceX: -245, forceY: 60, label: "终局回风" },
+            { x: 244, y: 558, width: 168, height: 82, forceX: 120, forceY: -235, label: "尾段升流" }
+          ]
+        },
+        {
+          name: "Level 31",
+          title: "第31关 尖刺入狱",
+          mechanics: ["尖刺墙", "移动弹簧", "风道", "头盔怪"],
+          note: "尖刺墙会惩罚偏离路线的反弹，移动弹簧是唯一安全桥。",
+          hint: "先等底部移动弹簧靠中，借上升风避开中路尖刺；头盔怪留给第二发和分裂补刀。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 238, y: 646 },
+            { x: 338, y: 422 },
+            { x: 404, y: 246 },
+            { x: 218, y: 276 },
+            { x: 92, y: 430 },
+            { x: 310, y: 560 }
+          ],
+          shots: 15,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 92, y: 226, type: "helmet" },
+            { x: 218, y: 276, type: "normal" },
+            { x: 330, y: 218, type: "moving", path: { span: 62 } },
+            { x: 404, y: 246, type: "normal" },
+            { x: 98, y: 430, type: "normal" },
+            { x: 242, y: 426, type: "helmet" },
+            { x: 360, y: 418, type: "moving", path: { span: 58 } },
+            { x: 124, y: 562, type: "normal" },
+            { x: 310, y: 560, type: "helmet" },
+            { x: 404, y: 586, type: "normal" }
+          ],
+          crates: [
+            { x: 150, y: 342, width: 56, height: 56 },
+            { x: 284, y: 342, width: 58, height: 58 },
+            { x: 218, y: 510, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 404, y: 246, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 130, y: 646, width: 214, height: 24, angle: 0, bounceMultiplier: 1.5, move: { axis: "x", span: 120, speed: 1.42, phase: 0.4 } },
+            { x: 426, y: 310, width: 26, height: 200, angle: 0, bounceMultiplier: 1.48, move: { axis: "y", span: 92, speed: 1.28, phase: 1.6 } },
+            { x: 24, y: 282, width: 26, height: 210, angle: 0, bounceMultiplier: 1.42 }
+          ],
+          spikes: [
+            { x: 214, y: 318, width: 94, height: 22, direction: "up" },
+            { x: 214, y: 462, width: 94, height: 22, direction: "down" },
+            { x: 58, y: 338, width: 22, height: 126, direction: "right" },
+            { x: 400, y: 428, width: 22, height: 132, direction: "left" }
+          ],
+          portals: [],
+          windZones: [
+            { x: 132, y: 286, width: 254, height: 86, forceX: 230, forceY: -95, label: "刺上风" },
+            { x: 102, y: 498, width: 286, height: 82, forceX: -190, forceY: -80, label: "回避风" }
+          ]
+        },
+        {
+          name: "Level 32",
+          title: "第32关 刺门折返",
+          mechanics: ["尖刺墙", "传送门", "移动弹簧", "炸弹桶"],
+          note: "传送门出口贴近尖刺区，必须用移动弹簧改变出门角度。",
+          hint: "第一发进紫门后立刻借右侧升降弹簧弹开，打上方炸弹；第二发走橙门回左侧清头盔。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 112, y: 570 },
+            { x: 324, y: 232 },
+            { x: 426, y: 372 },
+            { x: 374, y: 286 },
+            { x: 388, y: 560 },
+            { x: 138, y: 430 },
+            { x: 92, y: 238 }
+          ],
+          shots: 16,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 92, y: 238, type: "helmet" },
+            { x: 206, y: 274, type: "moving", path: { span: 58 } },
+            { x: 342, y: 214, type: "normal" },
+            { x: 402, y: 330, type: "helmet" },
+            { x: 274, y: 394, type: "normal" },
+            { x: 138, y: 430, type: "normal" },
+            { x: 366, y: 498, type: "helmet" },
+            { x: 94, y: 572, type: "normal" },
+            { x: 248, y: 572, type: "moving", path: { span: 60 } },
+            { x: 394, y: 606, type: "normal" }
+          ],
+          crates: [
+            { x: 142, y: 334, width: 56, height: 56 },
+            { x: 252, y: 336, width: 58, height: 58 },
+            { x: 308, y: 514, width: 56, height: 56 }
+          ],
+          bombs: [
+            { x: 374, y: 286, explosionRadius: 126 },
+            { x: 138, y: 430, explosionRadius: 118 },
+            { x: 366, y: 498, explosionRadius: 116 }
+          ],
+          springs: [
+            { x: 420, y: 294, width: 26, height: 186, angle: 0, bounceMultiplier: 1.52, move: { axis: "y", span: 104, speed: 1.3, phase: 1.2 } },
+            { x: 128, y: 638, width: 222, height: 24, angle: 0, bounceMultiplier: 1.46, move: { axis: "x", span: 102, speed: 1.18, phase: 2.1 } },
+            { x: 24, y: 270, width: 26, height: 218, angle: 0, bounceMultiplier: 1.44, move: { axis: "y", span: 76, speed: 1.36, phase: 0.6 } }
+          ],
+          spikes: [
+            { x: 290, y: 260, width: 84, height: 22, direction: "down" },
+            { x: 222, y: 402, width: 108, height: 22, direction: "up" },
+            { x: 82, y: 460, width: 22, height: 112, direction: "right" },
+            { x: 392, y: 206, width: 22, height: 112, direction: "left" }
+          ],
+          portals: [
+            { x: 112, y: 570, targetX: 324, targetY: 232, color: "#8a65ff" },
+            { x: 324, y: 232, targetX: 112, targetY: 570, color: "#8a65ff" },
+            { x: 388, y: 560, targetX: 138, targetY: 430, color: "#ff8a4a" },
+            { x: 138, y: 430, targetX: 388, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 166, y: 296, width: 222, height: 84, forceX: 220, forceY: -80, label: "门侧风" },
+            { x: 104, y: 492, width: 276, height: 84, forceX: -210, forceY: 42, label: "返刺风" }
+          ]
+        },
+        {
+          name: "Level 33",
+          title: "第33关 炼狱连锁",
+          mechanics: ["尖刺墙", "炸弹桶", "移动弹簧", "范围伤害", "巡逻怪"],
+          note: "尖刺把爆炸路线切成三段，炸弹顺序错了会留下大量残血。",
+          hint: "先开左上炸弹，再等右侧升降弹簧压低时开中路炸弹；最后从底部移动弹簧切右下。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 150, y: 642 },
+            { x: 164, y: 276 },
+            { x: 202, y: 300 },
+            { x: 420, y: 410 },
+            { x: 362, y: 452 },
+            { x: 410, y: 590 },
+            { x: 108, y: 520 }
+          ],
+          shots: 16,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 92, y: 210, type: "helmet" },
+            { x: 202, y: 256, type: "normal" },
+            { x: 332, y: 224, type: "moving", path: { span: 64 } },
+            { x: 408, y: 332, type: "helmet" },
+            { x: 252, y: 390, type: "normal" },
+            { x: 108, y: 520, type: "normal" },
+            { x: 238, y: 510, type: "moving", path: { span: 68 } },
+            { x: 362, y: 452, type: "helmet" },
+            { x: 410, y: 590, type: "normal" },
+            { x: 164, y: 606, type: "normal" },
+            { x: 302, y: 622, type: "normal" }
+          ],
+          crates: [
+            { x: 240, y: 330, width: 58, height: 58 },
+            { x: 126, y: 420, width: 56, height: 56 },
+            { x: 310, y: 520, width: 56, height: 56 },
+            { x: 214, y: 566, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 202, y: 300, explosionRadius: 132 },
+            { x: 362, y: 452, explosionRadius: 128 },
+            { x: 410, y: 590, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 118, y: 642, width: 224, height: 24, angle: 0, bounceMultiplier: 1.5, move: { axis: "x", span: 112, speed: 1.46, phase: 0.9 } },
+            { x: 420, y: 300, width: 26, height: 210, angle: 0, bounceMultiplier: 1.54, move: { axis: "y", span: 104, speed: 1.26, phase: 2.0 } },
+            { x: 24, y: 262, width: 26, height: 236, angle: 0, bounceMultiplier: 1.46 }
+          ],
+          spikes: [
+            { x: 204, y: 382, width: 124, height: 22, direction: "up" },
+            { x: 204, y: 476, width: 124, height: 22, direction: "down" },
+            { x: 72, y: 310, width: 22, height: 132, direction: "right" },
+            { x: 386, y: 452, width: 22, height: 126, direction: "left" },
+            { x: 114, y: 586, width: 106, height: 22, direction: "up" }
+          ],
+          portals: [],
+          windZones: [
+            { x: 112, y: 292, width: 280, height: 86, forceX: 242, forceY: -54, label: "连爆风" },
+            { x: 112, y: 500, width: 284, height: 82, forceX: -228, forceY: -52, label: "回火风" }
+          ]
+        },
+        {
+          name: "Level 34",
+          title: "第34关 刺风迷宫",
+          mechanics: ["尖刺墙", "风道", "传送门", "移动弹簧", "头盔怪"],
+          note: "多段风道会把窝瓜推向尖刺，只有传送门出口和移动弹簧能修正路线。",
+          hint: "第一发低角度进紫门，出门后不要硬撞风道，等右侧弹簧上移再切回中路。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 126, y: 568 },
+            { x: 330, y: 228 },
+            { x: 418, y: 388 },
+            { x: 332, y: 438 },
+            { x: 386, y: 560 },
+            { x: 142, y: 420 },
+            { x: 94, y: 236 }
+          ],
+          shots: 17,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 94, y: 236, type: "helmet" },
+            { x: 210, y: 258, type: "moving", path: { span: 60 } },
+            { x: 334, y: 212, type: "helmet" },
+            { x: 406, y: 318, type: "normal" },
+            { x: 332, y: 438, type: "helmet" },
+            { x: 222, y: 412, type: "normal" },
+            { x: 142, y: 420, type: "normal" },
+            { x: 94, y: 560, type: "normal" },
+            { x: 252, y: 552, type: "moving", path: { span: 68 } },
+            { x: 392, y: 588, type: "normal" },
+            { x: 320, y: 626, type: "helmet" }
+          ],
+          crates: [
+            { x: 136, y: 332, width: 56, height: 56 },
+            { x: 258, y: 330, width: 58, height: 58 },
+            { x: 302, y: 500, width: 56, height: 56 },
+            { x: 166, y: 530, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 332, y: 438, explosionRadius: 122 },
+            { x: 142, y: 420, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 130, y: 638, width: 220, height: 24, angle: 0, bounceMultiplier: 1.48, move: { axis: "x", span: 116, speed: 1.36, phase: 0.2 } },
+            { x: 422, y: 304, width: 26, height: 208, angle: 0, bounceMultiplier: 1.56, move: { axis: "y", span: 110, speed: 1.3, phase: 1.5 } },
+            { x: 24, y: 272, width: 26, height: 230, angle: 0, bounceMultiplier: 1.48, move: { axis: "y", span: 84, speed: 1.42, phase: 2.4 } }
+          ],
+          spikes: [
+            { x: 202, y: 300, width: 112, height: 22, direction: "down" },
+            { x: 202, y: 458, width: 112, height: 22, direction: "up" },
+            { x: 72, y: 404, width: 22, height: 118, direction: "right" },
+            { x: 386, y: 226, width: 22, height: 116, direction: "left" },
+            { x: 246, y: 586, width: 122, height: 22, direction: "up" }
+          ],
+          portals: [
+            { x: 126, y: 568, targetX: 330, targetY: 228, color: "#8a65ff" },
+            { x: 330, y: 228, targetX: 126, targetY: 568, color: "#8a65ff" },
+            { x: 386, y: 560, targetX: 142, targetY: 420, color: "#ff8a4a" },
+            { x: 142, y: 420, targetX: 386, targetY: 560, color: "#ff8a4a" }
+          ],
+          windZones: [
+            { x: 92, y: 278, width: 296, height: 86, forceX: 260, forceY: -72, label: "刺风一" },
+            { x: 100, y: 430, width: 292, height: 88, forceX: -246, forceY: 80, label: "刺风二" },
+            { x: 240, y: 552, width: 170, height: 82, forceX: 120, forceY: -232, label: "窄升流" }
+          ]
+        },
+        {
+          name: "Level 35",
+          title: "第35关 地狱机关终章",
+          mechanics: ["尖刺墙", "移动弹簧", "传送门", "风道", "炸弹桶", "巡逻怪", "头盔怪"],
+          note: "地狱难度终章，所有机关同时压缩路线窗口，技能点和护盾会显著提高容错。",
+          hint: "第一发等底部弹簧靠右进紫门开上方炸弹链；第二发借右侧升降弹簧切中路；最后用蓝门和橙门处理左右头盔。",
+          route: [
+            { x: 240, y: 735 },
+            { x: 304, y: 650 },
+            { x: 116, y: 568 },
+            { x: 314, y: 224 },
+            { x: 352, y: 246 },
+            { x: 426, y: 388 },
+            { x: 370, y: 486 },
+            { x: 148, y: 430 },
+            { x: 246, y: 292 },
+            { x: 396, y: 560 },
+            { x: 96, y: 236 }
+          ],
+          shots: 18,
+          start: { x: 240, y: 735 },
+          monsters: [
+            { x: 96, y: 236, type: "helmet" },
+            { x: 186, y: 268, type: "moving", path: { span: 60 } },
+            { x: 320, y: 198, type: "helmet" },
+            { x: 408, y: 306, type: "helmet" },
+            { x: 364, y: 392, type: "moving", path: { span: 72 } },
+            { x: 230, y: 420, type: "normal" },
+            { x: 116, y: 472, type: "helmet" },
+            { x: 264, y: 534, type: "moving", path: { span: 66 } },
+            { x: 396, y: 558, type: "helmet" },
+            { x: 88, y: 592, type: "normal" },
+            { x: 218, y: 618, type: "normal" },
+            { x: 334, y: 628, type: "normal" },
+            { x: 408, y: 642, type: "normal" }
+          ],
+          crates: [
+            { x: 136, y: 334, width: 56, height: 56 },
+            { x: 250, y: 332, width: 58, height: 58 },
+            { x: 312, y: 458, width: 56, height: 56 },
+            { x: 170, y: 524, width: 54, height: 54 },
+            { x: 260, y: 572, width: 54, height: 54 }
+          ],
+          bombs: [
+            { x: 352, y: 246, explosionRadius: 138 },
+            { x: 370, y: 486, explosionRadius: 128 },
+            { x: 148, y: 430, explosionRadius: 122 },
+            { x: 408, y: 596, explosionRadius: 116 },
+            { x: 246, y: 292, explosionRadius: 118 }
+          ],
+          springs: [
+            { x: 118, y: 650, width: 224, height: 24, angle: 0, bounceMultiplier: 1.56, move: { axis: "x", span: 128, speed: 1.42, phase: 0.8 } },
+            { x: 426, y: 306, width: 26, height: 218, angle: 0, bounceMultiplier: 1.58, move: { axis: "y", span: 112, speed: 1.3, phase: 1.9 } },
+            { x: 24, y: 254, width: 26, height: 250, angle: 0, bounceMultiplier: 1.5, move: { axis: "y", span: 88, speed: 1.48, phase: 2.7 } }
+          ],
+          spikes: [
+            { x: 198, y: 318, width: 126, height: 22, direction: "down" },
+            { x: 198, y: 454, width: 126, height: 22, direction: "up" },
+            { x: 78, y: 344, width: 22, height: 154, direction: "right" },
+            { x: 384, y: 246, width: 22, height: 142, direction: "left" },
+            { x: 106, y: 584, width: 116, height: 22, direction: "up" },
+            { x: 296, y: 584, width: 118, height: 22, direction: "up" }
+          ],
+          portals: [
+            { x: 116, y: 568, targetX: 314, targetY: 224, color: "#8a65ff" },
+            { x: 314, y: 224, targetX: 116, targetY: 568, color: "#8a65ff" },
+            { x: 396, y: 560, targetX: 148, targetY: 430, color: "#ff8a4a" },
+            { x: 148, y: 430, targetX: 396, targetY: 560, color: "#ff8a4a" },
+            { x: 246, y: 292, targetX: 370, targetY: 486, color: "#4ca3dd" },
+            { x: 370, y: 486, targetX: 246, targetY: 292, color: "#4ca3dd" }
+          ],
+          windZones: [
+            { x: 92, y: 284, width: 300, height: 90, forceX: 268, forceY: -96, label: "地狱升风" },
+            { x: 102, y: 452, width: 292, height: 96, forceX: -260, forceY: 72, label: "地狱回风" },
+            { x: 236, y: 558, width: 174, height: 84, forceX: 126, forceY: -246, label: "终末升流" }
+          ]
         }
       ];
 
@@ -1849,6 +2460,7 @@
             { icon: "爆", name: "炸弹桶", text: "被撞后立即爆炸，范围内怪物受到 2 点伤害。" },
             { icon: "弹", name: "弹簧墙", text: "碰撞后按更高速度反弹，适合在窄角度里补刀。" },
             { icon: "移", name: "移动弹簧", text: "沿轨道来回移动，碰撞时会把自身速度带给窝瓜，适合等时机借力。" },
+            { icon: "刺", name: "尖刺墙", text: "碰到后会大幅减速并打乱路线；荆棘护盾可以抵消部分惩罚。" },
             { icon: "门", name: "传送门", text: "碰到入口会从同色出口飞出，速度方向会保留。" },
             { icon: "风", name: "风道", text: "进入区域后持续受到箭头方向推力，顺风可延长路线，逆风会减速。" },
             { icon: "边", name: "边界反弹", text: "窝瓜撞到四周边界会反弹，速度会稍微衰减。" }
@@ -1942,6 +2554,7 @@
           this.sprite = null;
           this.hitSquash = 0;
           this.portalCooldown = 0;
+          this.spikeCooldown = 0;
         }
 
         setSprite(sprite) {
@@ -1952,9 +2565,9 @@
           return length(point.x - this.x, point.y - this.y) <= this.radius + 18;
         }
 
-        launch(vx, vy) {
+        launch(vx, vy, maxSpeed = MAX_SPEED) {
           const speed = length(vx, vy);
-          const scale = speed > MAX_SPEED ? MAX_SPEED / speed : 1;
+          const scale = speed > maxSpeed ? maxSpeed / speed : 1;
           this.velocityX = vx * scale;
           this.velocityY = vy * scale;
           this.state = "moving";
@@ -1970,6 +2583,7 @@
           this.velocityY *= decay;
           this.hitSquash = Math.max(0, this.hitSquash - dt * 5);
           this.portalCooldown = Math.max(0, this.portalCooldown - dt);
+          this.spikeCooldown = Math.max(0, this.spikeCooldown - dt);
         }
 
         shouldStop(dt) {
@@ -1991,6 +2605,7 @@
           this.stopTimer = 0;
           this.hitSquash = 0;
           this.portalCooldown = 0;
+          this.spikeCooldown = 0;
         }
 
         draw(ctx) {
@@ -2025,6 +2640,7 @@
           this.sprite = sprite;
           this.hitSquash = 0;
           this.portalCooldown = 0;
+          this.spikeCooldown = 0;
           this.life = 4.4;
           this.stopTimer = 0;
           this.isAlive = true;
@@ -2040,6 +2656,7 @@
           this.velocityY *= decay;
           this.hitSquash = Math.max(0, this.hitSquash - dt * 5);
           this.portalCooldown = Math.max(0, this.portalCooldown - dt);
+          this.spikeCooldown = Math.max(0, this.spikeCooldown - dt);
 
           if (length(this.velocityX, this.velocityY) < STOP_THRESHOLD) {
             this.stopTimer += dt;
@@ -2417,6 +3034,51 @@
         }
       }
 
+      class Spike {
+        constructor(config) {
+          this.x = config.x;
+          this.y = config.y;
+          this.width = config.width;
+          this.height = config.height;
+          this.direction = config.direction || "up";
+        }
+
+        draw(ctx) {
+          ctx.save();
+          ctx.fillStyle = "#d85745";
+          ctx.strokeStyle = "#172015";
+          ctx.lineWidth = 3;
+          ctx.fillRect(this.x, this.y, this.width, this.height);
+          ctx.strokeRect(this.x, this.y, this.width, this.height);
+
+          ctx.fillStyle = "#fff8dc";
+          const horizontal = this.width >= this.height;
+          const step = horizontal ? 18 : 16;
+          ctx.beginPath();
+
+          if (horizontal) {
+            const baseY = this.direction === "down" ? this.y : this.y + this.height;
+            const tipY = this.direction === "down" ? this.y + this.height : this.y;
+            for (let x = this.x + 4; x < this.x + this.width; x += step) {
+              ctx.moveTo(x, baseY);
+              ctx.lineTo(x + step / 2, tipY);
+              ctx.lineTo(x + step, baseY);
+            }
+          } else {
+            const baseX = this.direction === "right" ? this.x : this.x + this.width;
+            const tipX = this.direction === "right" ? this.x + this.width : this.x;
+            for (let y = this.y + 4; y < this.y + this.height; y += step) {
+              ctx.moveTo(baseX, y);
+              ctx.lineTo(tipX, y + step / 2);
+              ctx.lineTo(baseX, y + step);
+            }
+          }
+
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       class Portal {
         constructor(config) {
           this.x = config.x;
@@ -2776,10 +3438,19 @@
           return Number(this.skills[id]) || 0;
         }
 
+        getSkillPointBudget(index = this.levelIndex) {
+          return clamp(
+            BASE_SKILL_POINTS + Math.floor(index / SKILL_POINT_INTERVAL),
+            BASE_SKILL_POINTS,
+            TOTAL_SKILL_POINTS
+          );
+        }
+
         renderSkillScreen() {
           this.skillList.textContent = "";
           const used = this.getSkillPointsUsed();
-          this.skillSummary.textContent = `技能点 ${used}/${TOTAL_SKILL_POINTS}，加点会影响所有关卡。`;
+          const budget = this.getSkillPointBudget();
+          this.skillSummary.textContent = `技能点 ${used}/${budget}，当前第 ${this.levelIndex + 1} 关，每 5 关多 1 点。`;
 
           for (const skill of SKILLS) {
             const level = this.skillLevel(skill.id);
@@ -2809,7 +3480,7 @@
             const plus = document.createElement("button");
             plus.type = "button";
             plus.textContent = "+";
-            plus.disabled = level >= skill.max || used >= TOTAL_SKILL_POINTS;
+            plus.disabled = level >= skill.max || used >= budget;
             plus.addEventListener("click", () => this.adjustSkill(skill.id, 1));
 
             stepper.append(minus, value, plus);
@@ -2822,7 +3493,7 @@
           const skill = SKILLS.find((item) => item.id === id);
           if (!skill) return;
           const next = clamp(this.skillLevel(id) + delta, 0, skill.max);
-          if (delta > 0 && this.getSkillPointsUsed() >= TOTAL_SKILL_POINTS) return;
+          if (delta > 0 && this.getSkillPointsUsed() >= this.getSkillPointBudget()) return;
           this.skills[id] = next;
           this.saveSkills();
           this.renderSkillScreen();
@@ -3021,10 +3692,16 @@
           if (this.squashSprite) this.squash.setSprite(this.squashSprite);
           this.monsters = level.monsters.map((config) => new Monster(config));
           this.crates = level.crates.map((config) => new Crate(config));
-          this.bombs = level.bombs.map((config) => new Bomb(config));
+          const resonance = this.skillLevel("resonance");
+          this.bombs = level.bombs.map((config) => new Bomb({
+            ...config,
+            explosionRadius: (config.explosionRadius || 120) + resonance * 18
+          }));
           this.springs = level.springs.map((config) => new Spring(config));
+          this.spikes = (level.spikes || []).map((config) => new Spike(config));
           this.portals = (level.portals || []).map((config) => new Portal(config));
           this.windZones = (level.windZones || []).map((config) => new WindZone(config));
+          this.spikeShieldCharges = this.skillLevel("shield");
           this.applySkillTerrain();
 
           this.overlay.classList.add("hidden");
@@ -3100,7 +3777,7 @@
           this.canvas.releasePointerCapture(event.pointerId);
 
           if (launch.power > 10 && this.shotsLeft > 0) {
-            this.squash.launch(launch.vx, launch.vy);
+            this.squash.launch(launch.vx, launch.vy, this.getMaxSpeed());
             this.spawnSplitSquashes(launch);
             this.shotsLeft -= 1;
             this.shake = Math.max(this.shake, 4);
@@ -3120,17 +3797,27 @@
             return { vx: 0, vy: 0, power: 0, percent: 0, nx: 0, ny: -1 };
           }
 
-          const power = clamp(distance, 0, MAX_DRAG);
+          const maxDrag = this.getMaxDrag();
+          const power = clamp(distance, 0, maxDrag);
           const nx = dx / distance;
           const ny = dy / distance;
+          const scale = POWER_SCALE + this.skillLevel("power") * 0.48;
           return {
-            vx: nx * power * POWER_SCALE,
-            vy: ny * power * POWER_SCALE,
+            vx: nx * power * scale,
+            vy: ny * power * scale,
             power,
-            percent: power / MAX_DRAG,
+            percent: power / maxDrag,
             nx,
             ny
           };
+        }
+
+        getMaxDrag() {
+          return MAX_DRAG + this.skillLevel("power") * 16;
+        }
+
+        getMaxSpeed() {
+          return MAX_SPEED + this.skillLevel("power") * 110;
         }
 
         rotateVector(vx, vy, angle) {
@@ -3251,9 +3938,10 @@
 
         limitProjectileSpeed(projectile) {
           const speed = length(projectile.velocityX, projectile.velocityY);
-          if (speed <= MAX_SPEED) return;
-          projectile.velocityX = (projectile.velocityX / speed) * MAX_SPEED;
-          projectile.velocityY = (projectile.velocityY / speed) * MAX_SPEED;
+          const maxSpeed = this.getMaxSpeed();
+          if (speed <= maxSpeed) return;
+          projectile.velocityX = (projectile.velocityX / speed) * maxSpeed;
+          projectile.velocityY = (projectile.velocityY / speed) * maxSpeed;
         }
 
         handleBounds(projectile) {
@@ -3338,6 +4026,37 @@
             }
           }
 
+          for (const spike of this.spikes || []) {
+            if ((s.spikeCooldown || 0) > 0) continue;
+            const collision = rectCircleCollision(s, spike);
+            if (!collision.hit) continue;
+
+            s.x += collision.nx * (collision.depth + 1);
+            s.y += collision.ny * (collision.depth + 1);
+            s.spikeCooldown = 0.22;
+            s.hitSquash = 1;
+            this.shake = Math.max(this.shake, 9);
+
+            if (s.isAlive !== undefined) {
+              s.isAlive = false;
+              this.spawnBurst(s.x, s.y, "#d85745", 12);
+              continue;
+            }
+
+            if (this.spikeShieldCharges > 0) {
+              this.spikeShieldCharges -= 1;
+              this.reflectSquash(collision.nx, collision.ny, 0.96, 1.12, s);
+              this.addFloatingText("护盾!", s.x, s.y - 38, "#dff6ff");
+              this.spawnBurst(s.x, s.y, "#dff6ff", 14);
+            } else {
+              this.reflectSquash(collision.nx, collision.ny, 0.46, 0.72, s);
+              s.velocityX *= 0.64;
+              s.velocityY *= 0.64;
+              this.addFloatingText("尖刺!", s.x, s.y - 38, "#d85745");
+              this.spawnBurst(s.x, s.y, "#d85745", 14);
+            }
+          }
+
           for (const spring of this.springs) {
             const collision = rectCircleCollision(s, spring);
             if (!collision.hit) continue;
@@ -3366,9 +4085,10 @@
           }
 
           const speed = length(s.velocityX, s.velocityY);
-          if (speed > MAX_SPEED) {
-            s.velocityX = (s.velocityX / speed) * MAX_SPEED;
-            s.velocityY = (s.velocityY / speed) * MAX_SPEED;
+          const maxSpeed = this.getMaxSpeed();
+          if (speed > maxSpeed) {
+            s.velocityX = (s.velocityX / speed) * maxSpeed;
+            s.velocityY = (s.velocityY / speed) * maxSpeed;
           }
         }
 
@@ -3501,6 +4221,7 @@
           if (this.aiming) this.drawAim(ctx);
 
           for (const spring of this.springs) spring.draw(ctx);
+          for (const spike of this.spikes || []) spike.draw(ctx);
           for (const crate of this.crates) crate.draw(ctx);
           for (const bomb of this.bombs) bomb.draw(ctx);
           for (const portal of this.portals || []) portal.draw(ctx);

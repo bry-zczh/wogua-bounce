@@ -17,7 +17,7 @@ const iconPaths = [
 ];
 const html = fs.readFileSync(indexPath, "utf8");
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-const expectedLevels = 25;
+const expectedLevels = 35;
 
 const scriptMatches = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
 if (scriptMatches.length === 0) {
@@ -36,6 +36,7 @@ const requiredClasses = [
   "class Crate",
   "class Bomb",
   "class Spring",
+  "class Spike",
   "class Portal",
   "class WindZone",
   "class Particle"
@@ -74,6 +75,11 @@ const requiredUiTokens = [
   "applyWind",
   "move: { axis:",
   "移动弹簧",
+  "spikes:",
+  "尖刺墙",
+  "荆棘护盾",
+  "爆破共鸣",
+  "强力蓄力",
   "传送门",
   "风道"
 ];
@@ -111,8 +117,8 @@ for (let level = 7; level <= expectedLevels; level += 1) {
 }
 
 const routeHintCount = (html.match(/route: \[/g) || []).length;
-if (routeHintCount < 20) {
-  throw new Error(`Expected route hints for Levels 6-25, found ${routeHintCount}`);
+if (routeHintCount < 30) {
+  throw new Error(`Expected route hints for Levels 6-35, found ${routeHintCount}`);
 }
 
 if (html.includes("{ x: 112, y: 596, width: 256, height: 24")) {
