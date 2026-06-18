@@ -887,6 +887,11 @@
         }
       ];
 
+      const SPIKE_TRAP_WINDOW = 2.4;
+      const SPIKE_TRAP_DISTANCE = 190;
+      const SPIKE_TRAP_REPEAT_LIMIT = 3;
+      const SPIKE_TRAP_CHAIN_LIMIT = 4;
+
       const LEVELS = [
         {
           name: "Level 1",
@@ -3433,6 +3438,8 @@
           this.maxCombo = 0;
           this.comboTimer = 0;
           this.elapsed = 0;
+          this.spikeTrapHits = [];
+          this.spikeTrapResetting = false;
 
           // 背景缓存 + 动态云朵
           this.bgCanvas = document.createElement("canvas");
@@ -3798,6 +3805,8 @@
           this.flash = 0;
           this.combo = 0;
           this.comboTimer = 0;
+          this.resetSpikeTrapState();
+          this.spikeTrapResetting = false;
           this.squash = new Squash(level.start);
           if (this.squashSprite) this.squash.setSprite(this.squashSprite);
           this.monsters = level.monsters.map((config) => new Monster(config));
@@ -3887,6 +3896,7 @@
           this.canvas.releasePointerCapture(event.pointerId);
 
           if (launch.power > 10 && this.shotsLeft > 0) {
+            this.resetSpikeTrapState();
             this.squash.launch(launch.vx, launch.vy, this.getMaxSpeed());
             this.spawnSplitSquashes(launch);
             this.shotsLeft -= 1;
@@ -4163,6 +4173,11 @@
               continue;
             }
 
+            if (this.registerSpikeTrapHit(s, spike)) {
+              this.breakSpikeTrap(s);
+              return;
+            }
+
             if (this.spikeShieldCharges > 0) {
               this.spikeShieldCharges -= 1;
               this.reflectSquash(collision.nx, collision.ny, 0.96, 1.12, s);
@@ -4217,6 +4232,51 @@
           this.spawnBurst(x, y, color, 7);
         }
 
+        resetSpikeTrapState() {
+          this.spikeTrapHits = [];
+        }
+
+        registerSpikeTrapHit(projectile, spike) {
+          if (projectile !== this.squash || this.spikeTrapResetting) return false;
+
+          const now = this.elapsed || 0;
+          const recent = (this.spikeTrapHits || []).filter((hit) => now - hit.time <= SPIKE_TRAP_WINDOW);
+          recent.push({
+            time: now,
+            x: projectile.x,
+            y: projectile.y,
+            spike
+          });
+          this.spikeTrapHits = recent;
+
+          const sameSpikeHits = recent.filter((hit) => hit.spike === spike).length;
+          if (sameSpikeHits >= SPIKE_TRAP_REPEAT_LIMIT) return true;
+          if (recent.length < SPIKE_TRAP_CHAIN_LIMIT) return false;
+
+          const xs = recent.map((hit) => hit.x);
+          const ys = recent.map((hit) => hit.y);
+          const compactX = Math.max(...xs) - Math.min(...xs) <= SPIKE_TRAP_DISTANCE;
+          const compactY = Math.max(...ys) - Math.min(...ys) <= SPIKE_TRAP_DISTANCE;
+          return compactX && compactY;
+        }
+
+        breakSpikeTrap(projectile) {
+          if (this.spikeTrapResetting || this.state !== "playing") return;
+
+          this.spikeTrapResetting = true;
+          projectile.velocityX = 0;
+          projectile.velocityY = 0;
+          projectile.stopTimer = 0;
+          projectile.state = "idle";
+          this.miniSquashes = [];
+          this.shake = Math.max(this.shake, 10);
+          this.addFloatingText("脱离卡刺", projectile.x, projectile.y - 44, "#fff8dc", { life: 1, size: 18 });
+          this.spawnBurst(projectile.x, projectile.y, "#fff8dc", 18);
+          this.resetSpikeTrapState();
+          this.finishShot();
+          this.spikeTrapResetting = false;
+        }
+
         // 连击：击杀怪物时调用
         onMonsterKilled(x, y) {
           this.combo += 1;
@@ -4229,6 +4289,8 @@
         }
 
         finishShot() {
+          this.resetSpikeTrapState();
+
           if (this.monsters.every((monster) => !monster.isAlive)) {
             this.completeLevel();
             return;
